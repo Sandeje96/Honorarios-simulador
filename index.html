@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Honorarios - CPIM</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8ecf4;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c5aa0;
+            font-size: 1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e8ecf4;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            background: white;
+        }
+
+        .form-control select {
+            cursor: pointer;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(44, 90, 160, 0.3);
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8ecf4;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .breakdown {
+            background: #f8f9fc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #2c5aa0;
+        }
+
+        .breakdown h3 {
+            color: #2c5aa0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e8ecf4;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: #2c5aa0;
+            font-size: 1.1rem;
+        }
+
+        .icon {
+            margin-right: 8px;
+            color: #2c5aa0;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .info-box p {
+            color: #1976d2;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .small-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calculator icon"></i>Simulador de Honorarios</h1>
+            <p>Consejo Profesional de Ingeniería de Misiones - Marzo 2025</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2 style="color: #2c5aa0; margin-bottom: 25px;">
+                    <i class="fas fa-edit icon"></i>Datos del Proyecto
+                </h2>
+                
+                <div class="form-group">
+                    <label for="tipoObra">
+                        <i class="fas fa-building icon"></i>Tipo de Obra
+                    </label>
+                    <select id="tipoObra" class="form-control">
+                        <option value="">Seleccione el tipo de obra</option>
+                        <optgroup label="VIVIENDAS UNIFAMILIARES">
+                            <option value="madera_economica">De madera, muy económicas (sin local húmedo)</option>
+                            <option value="albanileria_estandar">De albañilería, estándar sin local húmedo</option>
+                            <option value="madera_economica_2">De madera económica</option>
+                            <option value="madera_superior">De madera, categoría superior</option>
+                            <option value="prefabricada">Prefabricada, otros materiales</option>
+                            <option value="albanileria_hasta_80">De albañilería hasta 80 m²</option>
+                            <option value="albanileria_mayor_80">De albañilería mayor de 80 m²</option>
+                            <option value="albanileria_varias_plantas">De albañilería con más de una planta</option>
+                            <option value="albanileria_superior">De albañilería categoría superior</option>
+                            <option value="con_climatizacion">Con sistema de calefacción/aire acondicionado central</option>
+                        </optgroup>
+                        <optgroup label="EDIFICIOS MULTIFAMILIARES/COMERCIALES">
+                            <option value="planta_baja">Planta baja únicamente</option>
+                            <option value="varias_plantas_sin_ascensor">De más de una planta, sin ascensor</option>
+                            <option value="varias_plantas_con_ascensor">De más de una planta, con ascensor</option>
+                        </optgroup>
+                    </select>
+                    <div class="small-text">Según Tabla de Montos Mínimos CPIM</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="superficie">
+                        <i class="fas fa-ruler-combined icon"></i>Superficie Cubierta (m²)
+                    </label>
+                    <input type="number" id="superficie" class="form-control" 
+                           placeholder="Ingrese la superficie cubierta en metros cuadrados" min="1" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">
+                        <i class="fas fa-star icon"></i>Categoría de Honorarios
+                    </label>
+                    <select id="categoria" class="form-control">
+                        <option value="">Seleccione la categoría</option>
+                        <option value="primera">Primera Categoría (Obras de Arquitectura)</option>
+                        <option value="segunda">Segunda Categoría (Obras de Ingeniería)</option>
+                    </select>
+                    <div class="small-text">Primera: 9%, 7%, 5% / Segunda: 15%, 10%, 5%</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoTarea">
+                        <i class="fas fa-tasks icon"></i>Tipo de Tarea
+                    </label>
+                    <select id="tipoTarea" class="form-control">
+                        <option value="">Seleccione el tipo de tarea</option>
+                        <option value="proyecto">Proyecto</option>
+                        <option value="direccion">Dirección de Obra</option>
+                        <option value="proyecto_direccion">Proyecto + Dirección de Obra</option>
+                    </select>
+                </div>
+
+                <button class="calculate-btn" onclick="calcularHonorarios()">
+                    <i class="fas fa-calculator"></i> Calcular Honorarios
+                </button>
+
+                <div class="info-box">
+                    <p><i class="fas fa-info-circle"></i> <strong>Valores vigentes Marzo 2025.</strong> Los honorarios se calculan según la Resolución oficial del CPIM basada en el valor de la obra.</p>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2 style="color: #2c5aa0; margin-bottom: 25px;">
+                    <i class="fas fa-chart-line icon"></i>Resultado del Cálculo
+                </h2>
+
+                <div id="resultados" class="hidden">
+                    <div class="result-card">
+                        <div class="result-value" id="honorarioTotal">$0</div>
+                        <div class="result-label">Honorarios Profesionales</div>
+                    </div>
+
+                    <div class="breakdown">
+                        <h3><i class="fas fa-list-ul icon"></i>Desglose del Cálculo</h3>
+                        <div class="breakdown-item">
+                            <span>Valor de la Obra:</span>
+                            <span id="valorObra">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Superficie:</span>
+                            <span id="superficieCalc">0 m²</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Precio por m²:</span>
+                            <span id="precioM2">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Porcentaje Aplicado:</span>
+                            <span id="porcentajeAplicado">0%</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Honorarios Calculados:</span>
+                            <span id="honorariosCalculados">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Honorario Mínimo:</span>
+                            <span id="honorarioMinimo">$387.709</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span><strong>Total a Cobrar:</strong></span>
+                            <span id="totalFinal"><strong>$0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="placeholder" class="text-center" style="color: #666; padding: 40px;">
+                    <i class="fas fa-calculator" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
+                    <p style="font-size: 1.2rem;">Complete los datos y presione "Calcular Honorarios" para ver los resultados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Valores por m² según el documento oficial CPIM Marzo 2025
+        const VALORES_M2 = {
+            // VIVIENDAS UNIFAMILIARES
+            madera_economica: 870976,
+            albanileria_estandar: 1105561,
+            madera_economica_2: 1203244,
+            madera_superior: 1298793,
+            prefabricada: 1300314,
+            albanileria_hasta_80: 1376578,
+            albanileria_mayor_80: 1589717,
+            albanileria_varias_plantas: 1687125,
+            albanileria_superior: 1921689,
+            con_climatizacion: 2593613,
+            
+            // EDIFICIOS MULTIFAMILIARES/COMERCIALES
+            planta_baja: 1368617,
+            varias_plantas_sin_ascensor: 1590054,
+            varias_plantas_con_ascensor: 1687125
+        };
+
+        // Categorías de honorarios según el documento
+        const CATEGORIAS_HONORARIOS = {
+            primera: {
+                hasta: 115522933,
+                primer_porcentaje: 0.09,
+                limite_segundo: 275507572,
+                segundo_porcentaje: 0.07,
+                tercer_porcentaje: 0.05
+            },
+            segunda: {
+                hasta: 104074470,
+                primer_porcentaje: 0.15,
+                limite_segundo: 275507613,
+                segundo_porcentaje: 0.10,
+                tercer_porcentaje: 0.05
+            }
+        };
+
+        const HONORARIO_MINIMO = 387709;
+
+        function formatearMoneda(valor) {
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(valor);
+        }
+
+        function calcularHonorariosPorValor(valorObra, categoria) {
+            const cat = CATEGORIAS_HONORARIOS[categoria];
+            let honorarios = 0;
+            let porcentajeUsado = '';
+
+            if (valorObra <= cat.hasta) {
+                honorarios = valorObra * cat.primer_porcentaje;
+                porcentajeUsado = (cat.primer_porcentaje * 100) + '%';
+            } else if (valorObra <= cat.limite_segundo) {
+                const primerTramo = cat.hasta * cat.primer_porcentaje;
+                const segundoTramo = (valorObra - cat.hasta) * cat.segundo_porcentaje;
+                honorarios = primerTramo + segundoTramo;
+                porcentajeUsado = cat.primer_porcentaje * 100 + '% + ' + cat.segundo_porcentaje * 100 + '%';
+            } else {
+                const primerTramo = cat.hasta * cat.primer_porcentaje;
+                const segundoTramo = (cat.limite_segundo - cat.hasta) * cat.segundo_porcentaje;
+                const tercerTramo = (valorObra - cat.limite_segundo) * cat.tercer_porcentaje;
+                honorarios = primerTramo + segundoTramo + tercerTramo;
+                porcentajeUsado = cat.primer_porcentaje * 100 + '% + ' + cat.segundo_porcentaje * 100 + '% + ' + cat.tercer_porcentaje * 100 + '%';
+            }
+
+            return { honorarios, porcentajeUsado };
+        }
+
+        function calcularHonorarios() {
+            const tipoObra = document.getElementById('tipoObra').value;
+            const superficie = parseFloat(document.getElementById('superficie').value) || 0;
+            const categoria = document.getElementById('categoria').value;
+            const tipoTarea = document.getElementById('tipoTarea').value;
+
+            // Validar campos requeridos
+            if (!tipoObra || !categoria || !tipoTarea) {
+                alert('Por favor complete todos los campos obligatorios');
+                return;
+            }
+
+            if (superficie <= 0) {
+                alert('La superficie debe ser mayor a 0');
+                return;
+            }
+
+            // Calcular valor de la obra
+            const precioM2 = VALORES_M2[tipoObra];
+            const valorObra = superficie * precioM2;
+
+            // Calcular honorarios según categoría
+            const resultado = calcularHonorariosPorValor(valorObra, categoria);
+            let honorariosBase = resultado.honorarios;
+
+            // Aplicar factor según tipo de tarea
+            let factorTarea = 1;
+            if (tipoTarea === 'direccion') {
+                factorTarea = 0.5; // Solo dirección de obra (50% del proyecto)
+            } else if (tipoTarea === 'proyecto_direccion') {
+                factorTarea = 1.5; // Proyecto + Dirección (150% del proyecto)
+            }
+
+            const honorariosCalculados = honorariosBase * factorTarea;
+            
+            // Aplicar honorario mínimo
+            const honorarioFinal = Math.max(honorariosCalculados, HONORARIO_MINIMO);
+
+            // Mostrar resultados
+            document.getElementById('valorObra').textContent = formatearMoneda(valorObra);
+            document.getElementById('superficieCalc').textContent = superficie + ' m²';
+            document.getElementById('precioM2').textContent = formatearMoneda(precioM2);
+            document.getElementById('porcentajeAplicado').textContent = resultado.porcentajeUsado;
+            document.getElementById('honorariosCalculados').textContent = formatearMoneda(honorariosCalculados);
+            document.getElementById('honorarioMinimo').textContent = formatearMoneda(HONORARIO_MINIMO);
+            document.getElementById('honorarioTotal').textContent = formatearMoneda(honorarioFinal);
+            document.getElementById('totalFinal').textContent = formatearMoneda(honorarioFinal);
+
+            // Mostrar sección de resultados
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('resultados').classList.remove('hidden');
+
+            // Scroll suave hacia los resultados
+            document.getElementById('resultados').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }
+
+        // Limpiar resultados cuando se cambian los datos
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('change', function() {
+                document.getElementById('placeholder').classList.remove('hidden');
+                document.getElementById('resultados').classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
