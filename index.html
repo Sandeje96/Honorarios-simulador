@@ -244,6 +244,20 @@
                            placeholder="Ingrese la superficie cubierta en metros cuadrados" min="1" step="0.01">
                 </div>
 
+                <div class="form-group">
+                    <label for="etapaProyecto">
+                        <i class="fas fa-layer-group icon"></i>Etapa del Proyecto
+                    </label>
+                    <select id="etapaProyecto" class="form-control">
+                        <option value="">Seleccione la etapa del proyecto</option>
+                        <option value="croquis">Solo Croquis preliminares (5%)</option>
+                        <option value="anteproyecto">Croquis + Anteproyecto (20%)</option>
+                        <option value="planos_construccion">Croquis + Anteproyecto + Planos generales (40%)</option>
+                        <option value="proyecto_completo">Proyecto Completo + Estructuras (60%)</option>
+                    </select>
+                    <div class="small-text">Seleccione qué trabajos de proyecto realizará</div>
+                </div>
+
                 <button class="calculate-btn" onclick="calcularHonorarios()">
                     <i class="fas fa-calculator"></i> Calcular Honorarios
                 </button>
@@ -285,6 +299,30 @@
             primer_porcentaje: 0.09,       // 9%
             segundo_porcentaje: 0.07,      // 7%
             tercer_porcentaje: 0.05        // 5%
+        };
+
+        // Etapas del proyecto
+        const ETAPAS_PROYECTO = {
+            croquis: {
+                porcentaje: 0.05,
+                descripcion: "Solo Croquis preliminares",
+                detalle: "Croquis preliminares"
+            },
+            anteproyecto: {
+                porcentaje: 0.20,
+                descripcion: "Croquis + Anteproyecto", 
+                detalle: "Croquis preliminares + Anteproyecto"
+            },
+            planos_construccion: {
+                porcentaje: 0.40,
+                descripcion: "Croquis + Anteproyecto + Planos generales",
+                detalle: "Croquis preliminares + Anteproyecto + Planos generales de construcción"
+            },
+            proyecto_completo: {
+                porcentaje: 0.60,
+                descripcion: "Proyecto Completo + Estructuras",
+                detalle: "Croquis preliminares + Anteproyecto + Planos generales + Planos de estructuras"
+            }
         };
 
         // Desglose detallado de honorarios
@@ -349,6 +387,7 @@
         function calcularHonorarios() {
             const costoM2 = parseFloat(document.getElementById('costoM2').value) || 0;
             const superficie = parseFloat(document.getElementById('superficie').value) || 0;
+            const etapaProyecto = document.getElementById('etapaProyecto').value;
 
             // Validar campos requeridos
             if (superficie <= 0) {
@@ -361,34 +400,43 @@
                 return;
             }
 
+            if (!etapaProyecto) {
+                alert('Debe seleccionar una etapa del proyecto');
+                return;
+            }
+
             // Calcular valor de la obra
             const precioM2 = costoM2;
             const valorObra = superficie * precioM2;
 
-            // Calcular honorarios totales
+            // Calcular honorarios totales (base 100%)
             const resultado = calcularHonorariosPorValor(valorObra);
             const honorariosCompletos = resultado.honorarios;
 
             // Aplicar honorario mínimo
-            const honorarioFinal = Math.max(honorariosCompletos, HONORARIO_MINIMO);
+            const honorarioBase = Math.max(honorariosCompletos, HONORARIO_MINIMO);
 
-            // Calcular todos los desgloses
-            const honorariosProyecto = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.total;
-            const honorariosDireccion = honorarioFinal * DESGLOSE_HONORARIOS.direccion.total;
+            // Calcular honorarios según la etapa seleccionada
+            const etapaSeleccionada = ETAPAS_PROYECTO[etapaProyecto];
+            const honorarioProyecto = honorarioBase * etapaSeleccionada.porcentaje;
 
-            // Desglose del proyecto
-            const proyectoEstructura = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.calculo_estructura;
-            const proyectoElectrica = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.instalacion_electrica;
-            const proyectoSanitaria = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.instalacion_sanitaria;
-            const proyectoGas = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.instalacion_gas;
-            const proyectoResto = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.resto_proyecto;
+            // Calcular honorarios de dirección (40% del total base)
+            const honorariosDireccion = honorarioBase * DESGLOSE_HONORARIOS.direccion.total;
 
-            // Desglose de la dirección
-            const direccionEstructura = honorarioFinal * DESGLOSE_HONORARIOS.direccion.calculo_estructura;
-            const direccionElectrica = honorarioFinal * DESGLOSE_HONORARIOS.direccion.instalacion_electrica;
-            const direccionSanitaria = honorarioFinal * DESGLOSE_HONORARIOS.direccion.instalacion_sanitaria;
-            const direccionGas = honorarioFinal * DESGLOSE_HONORARIOS.direccion.instalacion_gas;
-            const direccionResto = honorarioFinal * DESGLOSE_HONORARIOS.direccion.resto_direccion;
+            // Desglose de la dirección (solo si es proyecto completo, sino no aplica)
+            let direccionEstructura = 0;
+            let direccionElectrica = 0;
+            let direccionSanitaria = 0;
+            let direccionGas = 0;
+            let direccionResto = 0;
+
+            if (etapaProyecto === 'proyecto_completo') {
+                direccionEstructura = honorarioBase * DESGLOSE_HONORARIOS.direccion.calculo_estructura;
+                direccionElectrica = honorarioBase * DESGLOSE_HONORARIOS.direccion.instalacion_electrica;
+                direccionSanitaria = honorarioBase * DESGLOSE_HONORARIOS.direccion.instalacion_sanitaria;
+                direccionGas = honorarioBase * DESGLOSE_HONORARIOS.direccion.instalacion_gas;
+                direccionResto = honorarioBase * DESGLOSE_HONORARIOS.direccion.resto_direccion;
+            }
 
             // Mostrar todos los resultados
             mostrarResultadosCompletos({
@@ -397,14 +445,11 @@
                 precioM2,
                 porcentajeUsado: resultado.porcentajeUsado,
                 honorariosCalculados: honorariosCompletos,
-                honorarioFinal,
-                honorariosProyecto,
+                honorarioBase,
+                etapaProyecto,
+                etapaSeleccionada,
+                honorarioProyecto,
                 honorariosDireccion,
-                proyectoEstructura,
-                proyectoElectrica,
-                proyectoSanitaria,
-                proyectoGas,
-                proyectoResto,
                 direccionEstructura,
                 direccionElectrica,
                 direccionSanitaria,
@@ -414,11 +459,19 @@
         }
 
         function mostrarResultadosCompletos(datos) {
+            // Calcular total final
+            let totalFinal = datos.honorarioProyecto;
+            
+            // Solo agregar dirección si es proyecto completo
+            if (datos.etapaProyecto === 'proyecto_completo') {
+                totalFinal += datos.honorariosDireccion;
+            }
+
             // Actualizar valor principal
-            document.getElementById('honorarioTotal').textContent = formatearMoneda(datos.honorarioFinal);
+            document.getElementById('honorarioTotal').textContent = formatearMoneda(totalFinal);
 
             // Mostrar desglose detallado
-            mostrarDesgloseDetallado(datos);
+            mostrarDesgloseDetallado(datos, totalFinal);
 
             // Mostrar sección de resultados
             document.getElementById('placeholder').classList.add('hidden');
@@ -431,11 +484,11 @@
             });
         }
 
-        function mostrarDesgloseDetallado(datos) {
+        function mostrarDesgloseDetallado(datos, totalFinal) {
             const breakdown = document.getElementById('breakdown');
             
             // Crear el HTML del desglose detallado
-            breakdown.innerHTML = `
+            let html = `
                 <h3><i class="fas fa-list-ul icon"></i>Desglose Completo de Honorarios</h3>
                 
                 <!-- Información básica -->
@@ -455,79 +508,159 @@
                     <span>Porcentaje Aplicado:</span>
                     <span>${datos.porcentajeUsado}</span>
                 </div>
-
                 
                 <hr style="margin: 20px 0; border: 1px solid #e8ecf4;">
                 
-                <!-- PROYECTO (60%) -->
+                <!-- PROYECTO -->
                 <div class="breakdown-item" style="background: #f0f8ff; padding: 10px; border-radius: 5px;">
-                    <span><strong>PROYECTO TOTAL (60%):</strong></span>
-                    <span><strong>${formatearMoneda(datos.honorariosProyecto)}</strong></span>
+                    <span><strong>${datos.etapaSeleccionada.descripcion} (${(datos.etapaSeleccionada.porcentaje * 100).toFixed(0)}%):</strong></span>
+                    <span><strong>${formatearMoneda(datos.honorarioProyecto)}</strong></span>
                 </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Cálculo de estructura (18%):</span>
-                    <span>${formatearMoneda(datos.proyectoEstructura)}</span>
+                <div class="breakdown-item" style="margin-left: 20px; font-size: 0.9rem; color: #666;">
+                    <span style="font-style: italic;">${datos.etapaSeleccionada.detalle}</span>
+                    <span></span>
                 </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Proyecto instalación eléctrica (7%):</span>
-                    <span>${formatearMoneda(datos.proyectoElectrica)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Proyecto instalación sanitaria (7%):</span>
-                    <span>${formatearMoneda(datos.proyectoSanitaria)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Proyecto instalación de gas (4%):</span>
-                    <span>${formatearMoneda(datos.proyectoGas)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Resto del proyecto (24%):</span>
-                    <span>${formatearMoneda(datos.proyectoResto)}</span>
-                </div>
-                
-                <hr style="margin: 15px 0; border: 1px solid #e8ecf4;">
-                
-                <!-- DIRECCIÓN (40%) -->
-                <div class="breakdown-item" style="background: #fff0f5; padding: 10px; border-radius: 5px;">
-                    <span><strong>DIRECCIÓN TOTAL (40%):</strong></span>
-                    <span><strong>${formatearMoneda(datos.honorariosDireccion)}</strong></span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Dirección cálculo estructura (18%):</span>
-                    <span>${formatearMoneda(datos.direccionEstructura)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Dirección instalación eléctrica (7%):</span>
-                    <span>${formatearMoneda(datos.direccionElectrica)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Dirección instalación sanitaria (7%):</span>
-                    <span>${formatearMoneda(datos.direccionSanitaria)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Dirección instalación de gas (4%):</span>
-                    <span>${formatearMoneda(datos.direccionGas)}</span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px;">
-                    <span>• Resto de dirección (4%):</span>
-                    <span>${formatearMoneda(datos.direccionResto)}</span>
-                </div>
-                
+            `;
+
+            // Solo mostrar desglose detallado si es proyecto completo
+            if (datos.etapaProyecto === 'proyecto_completo') {
+                // Calcular desgloses del proyecto
+                const proyectoEstructura = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.calculo_estructura;
+                const proyectoElectrica = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.instalacion_electrica;
+                const proyectoSanitaria = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.instalacion_sanitaria;
+                const proyectoGas = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.instalacion_gas;
+                const proyectoResto = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.resto_proyecto;
+
+                html += `
+                    <!-- Desglose detallado del PROYECTO COMPLETO (60%) -->
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Cálculo de estructura (18%):</span>
+                        <span>${formatearMoneda(proyectoEstructura)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Proyecto instalación eléctrica (7%):</span>
+                        <span>${formatearMoneda(proyectoElectrica)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Proyecto instalación sanitaria (7%):</span>
+                        <span>${formatearMoneda(proyectoSanitaria)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Proyecto instalación de gas (4%):</span>
+                        <span>${formatearMoneda(proyectoGas)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Resto del proyecto (24%):</span>
+                        <span>${formatearMoneda(proyectoResto)}</span>
+                    </div>
+                    
+                    <hr style="margin: 15px 0; border: 1px solid #e8ecf4;">
+                    
+                    <!-- DIRECCIÓN (40%) -->
+                    <div class="breakdown-item" style="background: #fff0f5; padding: 10px; border-radius: 5px;">
+                        <span><strong>DIRECCIÓN DE OBRA (40%):</strong></span>
+                        <span><strong>${formatearMoneda(datos.honorariosDireccion)}</strong></span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Dirección cálculo estructura (18%):</span>
+                        <span>${formatearMoneda(datos.direccionEstructura)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Dirección instalación eléctrica (7%):</span>
+                        <span>${formatearMoneda(datos.direccionElectrica)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Dirección instalación sanitaria (7%):</span>
+                        <span>${formatearMoneda(datos.direccionSanitaria)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Dirección instalación de gas (4%):</span>
+                        <span>${formatearMoneda(datos.direccionGas)}</span>
+                    </div>
+                    <div class="breakdown-item" style="margin-left: 20px;">
+                        <span>• Resto de dirección (4%):</span>
+                        <span>${formatearMoneda(datos.direccionResto)}</span>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="breakdown-item" style="margin-left: 20px; font-size: 0.9rem; color: #888; font-style: italic;">
+                        <span>* La dirección de obra (40%) solo aplica para proyecto completo</span>
+                        <span></span>
+                    </div>
+                `;
+            }
+
+            html += `
                 <hr style="margin: 20px 0; border: 2px solid #2c5aa0;">
                 
                 <div class="breakdown-item" style="background: #e8f4fd; padding: 15px; border-radius: 5px;">
-                    <span><strong>TOTAL HONORARIOS (100%):</strong></span>
-                    <span><strong>${formatearMoneda(datos.honorarioFinal)}</strong></span>
+                    <span><strong>TOTAL HONORARIOS:</strong></span>
+                    <span><strong>${formatearMoneda(totalFinal)}</strong></span>
                 </div>
             `;
+
+            breakdown.innerHTML = html;
         }
 
         // Limpiar resultados cuando se cambian los datos
-        document.querySelectorAll('input').forEach(element => {
+        document.querySelectorAll('input, select').forEach(element => {
             element.addEventListener('input', function() {
                 document.getElementById('placeholder').classList.remove('hidden');
                 document.getElementById('resultados').classList.add('hidden');
             });
+        });
+
+        // Formatear el campo de costo por m² mientras se escribe
+        document.getElementById('costoM2').addEventListener('input', function(e) {
+            let valor = e.target.value;
+            
+            // Remover caracteres no numéricos excepto punto
+            valor = valor.replace(/[^\d.]/g, '');
+            
+            // Asegurar que solo haya un punto decimal
+            const partes = valor.split('.');
+            if (partes.length > 2) {
+                valor = partes[0] + '.' + partes.slice(1).join('');
+            }
+            
+            // Actualizar el valor sin formato para cálculos
+            e.target.value = valor;
+            
+            // Mostrar valor formateado en placeholder o hint si hay valor
+            if (valor && !isNaN(parseFloat(valor))) {
+                const valorNumerico = parseFloat(valor);
+                const valorFormateado = formatearMoneda(valorNumerico);
+                
+                // Crear o actualizar el elemento de vista previa
+                let preview = document.getElementById('costoM2Preview');
+                if (!preview) {
+                    preview = document.createElement('div');
+                    preview.id = 'costoM2Preview';
+                    preview.className = 'small-text';
+                    preview.style.color = '#2c5aa0';
+                    preview.style.fontWeight = '600';
+                    preview.style.marginTop = '5px';
+                    e.target.parentNode.appendChild(preview);
+                }
+                preview.textContent = `Vista previa: ${valorFormateado}`;
+            } else {
+                // Remover vista previa si no hay valor válido
+                const preview = document.getElementById('costoM2Preview');
+                if (preview) {
+                    preview.remove();
+                }
+            }
+        });
+
+        // Limpiar vista previa cuando el campo pierde el foco si está vacío
+        document.getElementById('costoM2').addEventListener('blur', function(e) {
+            if (!e.target.value) {
+                const preview = document.getElementById('costoM2Preview');
+                if (preview) {
+                    preview.remove();
+                }
+            }
         });
     </script>
 </body>
