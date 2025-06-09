@@ -228,30 +228,12 @@
                 </h2>
                 
                 <div class="form-group">
-                    <label for="tipoObra">
-                        <i class="fas fa-building icon"></i>Tipo de Obra
+                    <label for="costoM2">
+                        <i class="fas fa-dollar-sign icon"></i>Costo por Metro Cuadrado ($)
                     </label>
-                    <select id="tipoObra" class="form-control">
-                        <option value="">Seleccione el tipo de obra</option>
-                        <optgroup label="VIVIENDAS UNIFAMILIARES">
-                            <option value="madera_economica">De madera, muy económicas (sin local húmedo)</option>
-                            <option value="albanileria_estandar">De albañilería, estándar sin local húmedo</option>
-                            <option value="madera_economica_2">De madera económica</option>
-                            <option value="madera_superior">De madera, categoría superior</option>
-                            <option value="prefabricada">Prefabricada, otros materiales</option>
-                            <option value="albanileria_hasta_80">De albañilería hasta 80 m²</option>
-                            <option value="albanileria_mayor_80">De albañilería mayor de 80 m²</option>
-                            <option value="albanileria_varias_plantas">De albañilería con más de una planta</option>
-                            <option value="albanileria_superior">De albañilería categoría superior</option>
-                            <option value="con_climatizacion">Con sistema de calefacción/aire acondicionado central</option>
-                        </optgroup>
-                        <optgroup label="EDIFICIOS MULTIFAMILIARES/COMERCIALES">
-                            <option value="planta_baja">Planta baja únicamente</option>
-                            <option value="varias_plantas_sin_ascensor">De más de una planta, sin ascensor</option>
-                            <option value="varias_plantas_con_ascensor">De más de una planta, con ascensor</option>
-                        </optgroup>
-                    </select>
-                    <div class="small-text">Según Tabla de Montos Mínimos CPIM</div>
+                    <input type="number" id="costoM2" class="form-control" 
+                        placeholder="Ingrese el costo por metro cuadrado" min="1" step="0.01">
+                    <div class="small-text">Valor por m² según su proyecto específico</div>
                 </div>
 
                 <div class="form-group">
@@ -260,30 +242,6 @@
                     </label>
                     <input type="number" id="superficie" class="form-control" 
                            placeholder="Ingrese la superficie cubierta en metros cuadrados" min="1" step="0.01">
-                </div>
-
-                <div class="form-group">
-                    <label for="categoria">
-                        <i class="fas fa-star icon"></i>Categoría de Honorarios
-                    </label>
-                    <select id="categoria" class="form-control">
-                        <option value="">Seleccione la categoría</option>
-                        <option value="primera">Primera Categoría (Obras de Arquitectura)</option>
-                        <option value="segunda">Segunda Categoría (Obras de Ingeniería)</option>
-                    </select>
-                    <div class="small-text">Primera: 9%, 7%, 5% / Segunda: 15%, 10%, 5%</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="tipoTarea">
-                        <i class="fas fa-tasks icon"></i>Tipo de Tarea
-                    </label>
-                    <select id="tipoTarea" class="form-control">
-                        <option value="">Seleccione el tipo de tarea</option>
-                        <option value="proyecto">Proyecto</option>
-                        <option value="direccion">Dirección de Obra</option>
-                        <option value="proyecto_direccion">Proyecto + Dirección de Obra</option>
-                    </select>
                 </div>
 
                 <button class="calculate-btn" onclick="calcularHonorarios()">
@@ -306,36 +264,8 @@
                         <div class="result-label">Honorarios Profesionales</div>
                     </div>
 
-                    <div class="breakdown">
-                        <h3><i class="fas fa-list-ul icon"></i>Desglose del Cálculo</h3>
-                        <div class="breakdown-item">
-                            <span>Valor de la Obra:</span>
-                            <span id="valorObra">$0</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Superficie:</span>
-                            <span id="superficieCalc">0 m²</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Precio por m²:</span>
-                            <span id="precioM2">$0</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Porcentaje Aplicado:</span>
-                            <span id="porcentajeAplicado">0%</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Honorarios Calculados:</span>
-                            <span id="honorariosCalculados">$0</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Honorario Mínimo:</span>
-                            <span id="honorarioMinimo">$387.709</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span><strong>Total a Cobrar:</strong></span>
-                            <span id="totalFinal"><strong>$0</strong></span>
-                        </div>
+                    <div class="breakdown" id="breakdown">
+                        <!-- El contenido se genera dinámicamente -->
                     </div>
                 </div>
 
@@ -348,41 +278,34 @@
     </div>
 
     <script>
-        // Valores por m² según el documento oficial CPIM Marzo 2025
-        const VALORES_M2 = {
-            // VIVIENDAS UNIFAMILIARES
-            madera_economica: 870976,
-            albanileria_estandar: 1105561,
-            madera_economica_2: 1203244,
-            madera_superior: 1298793,
-            prefabricada: 1300314,
-            albanileria_hasta_80: 1376578,
-            albanileria_mayor_80: 1589717,
-            albanileria_varias_plantas: 1687125,
-            albanileria_superior: 1921689,
-            con_climatizacion: 2593613,
-            
-            // EDIFICIOS MULTIFAMILIARES/COMERCIALES
-            planta_baja: 1368617,
-            varias_plantas_sin_ascensor: 1590054,
-            varias_plantas_con_ascensor: 1687125
+        // Sistema de honorarios único
+        const LIMITES_HONORARIOS = {
+            primer_limite: 115000000,      // $115.000.000
+            segundo_limite: 275000000,     // $275.000.000
+            primer_porcentaje: 0.09,       // 9%
+            segundo_porcentaje: 0.07,      // 7%
+            tercer_porcentaje: 0.05        // 5%
         };
 
-        // Categorías de honorarios según el documento
-        const CATEGORIAS_HONORARIOS = {
-            primera: {
-                hasta: 115522933,
-                primer_porcentaje: 0.09,
-                limite_segundo: 275507572,
-                segundo_porcentaje: 0.07,
-                tercer_porcentaje: 0.05
+        // Desglose detallado de honorarios
+        const DESGLOSE_HONORARIOS = {
+            proyecto: {
+                total: 0.60,                    // 60% del total
+                calculo_estructura: 0.18,       // 18%
+                instalacion_electrica: 0.07,    // 7%
+                instalacion_sanitaria: 0.07,    // 7%
+                instalacion_gas: 0.04,          // 4%
+                // Resto del proyecto: 24% (60% - 36%)
+                resto_proyecto: 0.24
             },
-            segunda: {
-                hasta: 104074470,
-                primer_porcentaje: 0.15,
-                limite_segundo: 275507613,
-                segundo_porcentaje: 0.10,
-                tercer_porcentaje: 0.05
+            direccion: {
+                total: 0.40,                    // 40% del total
+                calculo_estructura: 0.18,       // 18%
+                instalacion_electrica: 0.07,    // 7%
+                instalacion_sanitaria: 0.07,    // 7%
+                instalacion_gas: 0.04,          // 4%
+                // Resto de dirección: 4% (40% - 36%)
+                resto_direccion: 0.04
             }
         };
 
@@ -397,77 +320,105 @@
             }).format(valor);
         }
 
-        function calcularHonorariosPorValor(valorObra, categoria) {
-            const cat = CATEGORIAS_HONORARIOS[categoria];
+        function calcularHonorariosPorValor(valorObra) {
             let honorarios = 0;
             let porcentajeUsado = '';
 
-            if (valorObra <= cat.hasta) {
-                honorarios = valorObra * cat.primer_porcentaje;
-                porcentajeUsado = (cat.primer_porcentaje * 100) + '%';
-            } else if (valorObra <= cat.limite_segundo) {
-                const primerTramo = cat.hasta * cat.primer_porcentaje;
-                const segundoTramo = (valorObra - cat.hasta) * cat.segundo_porcentaje;
+            if (valorObra <= LIMITES_HONORARIOS.primer_limite) {
+                // Hasta $115.000.000: 9%
+                honorarios = valorObra * LIMITES_HONORARIOS.primer_porcentaje;
+                porcentajeUsado = '9%';
+            } else if (valorObra <= LIMITES_HONORARIOS.segundo_limite) {
+                // De $115.000.001 a $275.000.000: 9% + 7%
+                const primerTramo = LIMITES_HONORARIOS.primer_limite * LIMITES_HONORARIOS.primer_porcentaje;
+                const segundoTramo = (valorObra - LIMITES_HONORARIOS.primer_limite) * LIMITES_HONORARIOS.segundo_porcentaje;
                 honorarios = primerTramo + segundoTramo;
-                porcentajeUsado = cat.primer_porcentaje * 100 + '% + ' + cat.segundo_porcentaje * 100 + '%';
+                porcentajeUsado = '9% + 7%';
             } else {
-                const primerTramo = cat.hasta * cat.primer_porcentaje;
-                const segundoTramo = (cat.limite_segundo - cat.hasta) * cat.segundo_porcentaje;
-                const tercerTramo = (valorObra - cat.limite_segundo) * cat.tercer_porcentaje;
+                // Más de $275.000.000: 9% + 7% + 5%
+                const primerTramo = LIMITES_HONORARIOS.primer_limite * LIMITES_HONORARIOS.primer_porcentaje;
+                const segundoTramo = (LIMITES_HONORARIOS.segundo_limite - LIMITES_HONORARIOS.primer_limite) * LIMITES_HONORARIOS.segundo_porcentaje;
+                const tercerTramo = (valorObra - LIMITES_HONORARIOS.segundo_limite) * LIMITES_HONORARIOS.tercer_porcentaje;
                 honorarios = primerTramo + segundoTramo + tercerTramo;
-                porcentajeUsado = cat.primer_porcentaje * 100 + '% + ' + cat.segundo_porcentaje * 100 + '% + ' + cat.tercer_porcentaje * 100 + '%';
+                porcentajeUsado = '9% + 7% + 5%';
             }
 
             return { honorarios, porcentajeUsado };
         }
 
         function calcularHonorarios() {
-            const tipoObra = document.getElementById('tipoObra').value;
+            const costoM2 = parseFloat(document.getElementById('costoM2').value) || 0;
             const superficie = parseFloat(document.getElementById('superficie').value) || 0;
-            const categoria = document.getElementById('categoria').value;
-            const tipoTarea = document.getElementById('tipoTarea').value;
 
             // Validar campos requeridos
-            if (!tipoObra || !categoria || !tipoTarea) {
-                alert('Por favor complete todos los campos obligatorios');
-                return;
-            }
-
             if (superficie <= 0) {
                 alert('La superficie debe ser mayor a 0');
                 return;
             }
 
-            // Calcular valor de la obra
-            const precioM2 = VALORES_M2[tipoObra];
-            const valorObra = superficie * precioM2;
-
-            // Calcular honorarios según categoría
-            const resultado = calcularHonorariosPorValor(valorObra, categoria);
-            let honorariosBase = resultado.honorarios;
-
-            // Aplicar factor según tipo de tarea
-            let factorTarea = 1;
-            if (tipoTarea === 'direccion') {
-                factorTarea = 0.5; // Solo dirección de obra (50% del proyecto)
-            } else if (tipoTarea === 'proyecto_direccion') {
-                factorTarea = 1.5; // Proyecto + Dirección (150% del proyecto)
+            if (costoM2 <= 0) {
+                alert('El costo por metro cuadrado debe ser mayor a 0');
+                return;
             }
 
-            const honorariosCalculados = honorariosBase * factorTarea;
-            
-            // Aplicar honorario mínimo
-            const honorarioFinal = Math.max(honorariosCalculados, HONORARIO_MINIMO);
+            // Calcular valor de la obra
+            const precioM2 = costoM2;
+            const valorObra = superficie * precioM2;
 
-            // Mostrar resultados
-            document.getElementById('valorObra').textContent = formatearMoneda(valorObra);
-            document.getElementById('superficieCalc').textContent = superficie + ' m²';
-            document.getElementById('precioM2').textContent = formatearMoneda(precioM2);
-            document.getElementById('porcentajeAplicado').textContent = resultado.porcentajeUsado;
-            document.getElementById('honorariosCalculados').textContent = formatearMoneda(honorariosCalculados);
-            document.getElementById('honorarioMinimo').textContent = formatearMoneda(HONORARIO_MINIMO);
-            document.getElementById('honorarioTotal').textContent = formatearMoneda(honorarioFinal);
-            document.getElementById('totalFinal').textContent = formatearMoneda(honorarioFinal);
+            // Calcular honorarios totales
+            const resultado = calcularHonorariosPorValor(valorObra);
+            const honorariosCompletos = resultado.honorarios;
+
+            // Aplicar honorario mínimo
+            const honorarioFinal = Math.max(honorariosCompletos, HONORARIO_MINIMO);
+
+            // Calcular todos los desgloses
+            const honorariosProyecto = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.total;
+            const honorariosDireccion = honorarioFinal * DESGLOSE_HONORARIOS.direccion.total;
+
+            // Desglose del proyecto
+            const proyectoEstructura = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.calculo_estructura;
+            const proyectoElectrica = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.instalacion_electrica;
+            const proyectoSanitaria = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.instalacion_sanitaria;
+            const proyectoGas = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.instalacion_gas;
+            const proyectoResto = honorarioFinal * DESGLOSE_HONORARIOS.proyecto.resto_proyecto;
+
+            // Desglose de la dirección
+            const direccionEstructura = honorarioFinal * DESGLOSE_HONORARIOS.direccion.calculo_estructura;
+            const direccionElectrica = honorarioFinal * DESGLOSE_HONORARIOS.direccion.instalacion_electrica;
+            const direccionSanitaria = honorarioFinal * DESGLOSE_HONORARIOS.direccion.instalacion_sanitaria;
+            const direccionGas = honorarioFinal * DESGLOSE_HONORARIOS.direccion.instalacion_gas;
+            const direccionResto = honorarioFinal * DESGLOSE_HONORARIOS.direccion.resto_direccion;
+
+            // Mostrar todos los resultados
+            mostrarResultadosCompletos({
+                valorObra,
+                superficie,
+                precioM2,
+                porcentajeUsado: resultado.porcentajeUsado,
+                honorariosCalculados: honorariosCompletos,
+                honorarioFinal,
+                honorariosProyecto,
+                honorariosDireccion,
+                proyectoEstructura,
+                proyectoElectrica,
+                proyectoSanitaria,
+                proyectoGas,
+                proyectoResto,
+                direccionEstructura,
+                direccionElectrica,
+                direccionSanitaria,
+                direccionGas,
+                direccionResto
+            });
+        }
+
+        function mostrarResultadosCompletos(datos) {
+            // Actualizar valor principal
+            document.getElementById('honorarioTotal').textContent = formatearMoneda(datos.honorarioFinal);
+
+            // Mostrar desglose detallado
+            mostrarDesgloseDetallado(datos);
 
             // Mostrar sección de resultados
             document.getElementById('placeholder').classList.add('hidden');
@@ -480,9 +431,100 @@
             });
         }
 
+        function mostrarDesgloseDetallado(datos) {
+            const breakdown = document.getElementById('breakdown');
+            
+            // Crear el HTML del desglose detallado
+            breakdown.innerHTML = `
+                <h3><i class="fas fa-list-ul icon"></i>Desglose Completo de Honorarios</h3>
+                
+                <!-- Información básica -->
+                <div class="breakdown-item">
+                    <span>Valor de la Obra:</span>
+                    <span>${formatearMoneda(datos.valorObra)}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Superficie:</span>
+                    <span>${datos.superficie} m²</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Precio por m²:</span>
+                    <span>${formatearMoneda(datos.precioM2)}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Porcentaje Aplicado:</span>
+                    <span>${datos.porcentajeUsado}</span>
+                </div>
+
+                
+                <hr style="margin: 20px 0; border: 1px solid #e8ecf4;">
+                
+                <!-- PROYECTO (60%) -->
+                <div class="breakdown-item" style="background: #f0f8ff; padding: 10px; border-radius: 5px;">
+                    <span><strong>PROYECTO TOTAL (60%):</strong></span>
+                    <span><strong>${formatearMoneda(datos.honorariosProyecto)}</strong></span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Cálculo de estructura (18%):</span>
+                    <span>${formatearMoneda(datos.proyectoEstructura)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Proyecto instalación eléctrica (7%):</span>
+                    <span>${formatearMoneda(datos.proyectoElectrica)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Proyecto instalación sanitaria (7%):</span>
+                    <span>${formatearMoneda(datos.proyectoSanitaria)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Proyecto instalación de gas (4%):</span>
+                    <span>${formatearMoneda(datos.proyectoGas)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Resto del proyecto (24%):</span>
+                    <span>${formatearMoneda(datos.proyectoResto)}</span>
+                </div>
+                
+                <hr style="margin: 15px 0; border: 1px solid #e8ecf4;">
+                
+                <!-- DIRECCIÓN (40%) -->
+                <div class="breakdown-item" style="background: #fff0f5; padding: 10px; border-radius: 5px;">
+                    <span><strong>DIRECCIÓN TOTAL (40%):</strong></span>
+                    <span><strong>${formatearMoneda(datos.honorariosDireccion)}</strong></span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Dirección cálculo estructura (18%):</span>
+                    <span>${formatearMoneda(datos.direccionEstructura)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Dirección instalación eléctrica (7%):</span>
+                    <span>${formatearMoneda(datos.direccionElectrica)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Dirección instalación sanitaria (7%):</span>
+                    <span>${formatearMoneda(datos.direccionSanitaria)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Dirección instalación de gas (4%):</span>
+                    <span>${formatearMoneda(datos.direccionGas)}</span>
+                </div>
+                <div class="breakdown-item" style="margin-left: 20px;">
+                    <span>• Resto de dirección (4%):</span>
+                    <span>${formatearMoneda(datos.direccionResto)}</span>
+                </div>
+                
+                <hr style="margin: 20px 0; border: 2px solid #2c5aa0;">
+                
+                <div class="breakdown-item" style="background: #e8f4fd; padding: 15px; border-radius: 5px;">
+                    <span><strong>TOTAL HONORARIOS (100%):</strong></span>
+                    <span><strong>${formatearMoneda(datos.honorarioFinal)}</strong></span>
+                </div>
+            `;
+        }
+
         // Limpiar resultados cuando se cambian los datos
-        document.querySelectorAll('input, select').forEach(element => {
-            element.addEventListener('change', function() {
+        document.querySelectorAll('input').forEach(element => {
+            element.addEventListener('input', function() {
                 document.getElementById('placeholder').classList.remove('hidden');
                 document.getElementById('resultados').classList.add('hidden');
             });
