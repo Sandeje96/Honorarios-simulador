@@ -1,667 +1,204 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Honorarios - CPIM</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Honorarios - CPIM</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 40px;
-        }
-
-        .form-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e8ecf4;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c5aa0;
-            font-size: 1rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e8ecf4;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #fafbfc;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #2c5aa0;
-            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
-            background: white;
-        }
-
-        .form-control select {
-            cursor: pointer;
-        }
-
-        .calculate-btn {
-            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(44, 90, 160, 0.3);
-        }
-
-        .results-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e8ecf4;
-        }
-
-        .result-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .result-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .result-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .breakdown {
-            background: #f8f9fc;
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid #2c5aa0;
-        }
-
-        .breakdown h3 {
-            color: #2c5aa0;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        .breakdown-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e8ecf4;
-        }
-
-        .breakdown-item:last-child {
-            border-bottom: none;
-            font-weight: 600;
-            color: #2c5aa0;
-            font-size: 1.1rem;
-        }
-
-        .icon {
-            margin-right: 8px;
-            color: #2c5aa0;
-        }
-
-        .info-box {
-            background: #e3f2fd;
-            border: 1px solid #2196f3;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .info-box p {
-            color: #1976d2;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        .small-text {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .result-value {
-                font-size: 2rem;
-            }
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+min-height:100vh;padding:20px}
+.container{
+max-width:1200px;margin:0 auto;
+background:rgba(255,255,255,.95);
+border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+.header{
+background:linear-gradient(135deg,#2c5aa0 0%,#1e3c72 100%);
+color:#fff;padding:30px;text-align:center}
+.header h1{font-size:2.5rem;margin-bottom:10px}
+.content{
+display:grid;grid-template-columns:1fr 1fr;
+gap:30px;padding:40px}
+.form-section,.results-section{
+background:#fff;padding:30px;border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+border:1px solid #e8ecf4}
+.form-group{margin-bottom:25px}
+label{font-weight:600;color:#2c5aa0;margin-bottom:8px;display:block}
+.form-control{
+width:100%;padding:12px 15px;border-radius:10px;
+border:2px solid #e8ecf4;background:#fafbfc}
+.form-control:disabled{background:#eee;font-weight:600}
+.calculate-btn{
+width:100%;padding:15px;border:none;border-radius:10px;
+background:linear-gradient(135deg,#2c5aa0,#1e3c72);
+color:#fff;font-size:1.1rem;cursor:pointer}
+.result-card{
+background:linear-gradient(135deg,#667eea,#764ba2);
+color:#fff;padding:25px;border-radius:15px;text-align:center}
+.result-value{font-size:2.5rem;font-weight:700}
+.breakdown{background:#f8f9fc;padding:20px;border-radius:10px}
+.breakdown-item{
+display:flex;justify-content:space-between;
+padding:6px 0;border-bottom:1px solid #e8ecf4}
+.hidden{display:none}
+@media(max-width:768px){
+.content{grid-template-columns:1fr;padding:20px}
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-calculator icon"></i>Simulador de Honorarios</h1>
-            <p>Consejo Profesional de Ingeniería de Misiones - Marzo 2025</p>
-        </div>
+<div class="container">
+<div class="header">
+<h1><i class="fas fa-calculator"></i> Simulador de Honorarios</h1>
+<p>Consejo Profesional de Ingeniería de Misiones - Marzo 2025</p>
+</div>
 
-        <div class="content">
-            <div class="form-section">
-                <h2 style="color: #2c5aa0; margin-bottom: 25px;">
-                    <i class="fas fa-edit icon"></i>Datos del Proyecto
-                </h2>
-                
-                <div class="form-group">
-                    <label for="costoM2">
-                        <i class="fas fa-dollar-sign icon"></i>Costo por Metro Cuadrado ($)
-                    </label>
-                    <input type="number" id="costoM2" class="form-control" 
-                        placeholder="Ingrese el costo por metro cuadrado" min="1" step="0.01">
-                    <div class="small-text">Valor por m² según su proyecto específico</div>
-                </div>
+<div class="content">
+<div class="form-section">
+<h2 style="color:#2c5aa0;margin-bottom:20px">
+<i class="fas fa-edit"></i> Datos del Proyecto
+</h2>
 
-                <div class="form-group">
-                    <label for="superficie">
-                        <i class="fas fa-ruler-combined icon"></i>Superficie Cubierta (m²)
-                    </label>
-                    <input type="number" id="superficie" class="form-control" 
-                           placeholder="Ingrese la superficie cubierta en metros cuadrados" min="1" step="0.01">
-                </div>
+<div class="form-group">
+<label>Categoría de Obra</label>
+<select id="categoria" class="form-control">
+<option value="">Seleccione categoría</option>
+</select>
+</div>
 
-                <div class="form-group">
-                    <label for="etapaProyecto">
-                        <i class="fas fa-layer-group icon"></i>Etapa del Proyecto
-                    </label>
-                    <select id="etapaProyecto" class="form-control">
-                        <option value="">Seleccione la etapa del proyecto</option>
-                        <option value="croquis">Solo Croquis preliminares (5%)</option>
-                        <option value="anteproyecto">Croquis + Anteproyecto (20%)</option>
-                        <option value="planos_construccion">Croquis + Anteproyecto + Planos generales (40%)</option>
-                        <option value="proyecto_completo">Proyecto Completo + Estructuras (60%)</option>
-                    </select>
-                    <div class="small-text">Seleccione qué trabajos de proyecto realizará</div>
-                </div>
+<div class="form-group">
+<label>Tipología</label>
+<select id="tipologia" class="form-control" disabled>
+<option value="">Seleccione tipología</option>
+</select>
+</div>
 
-                <button class="calculate-btn" onclick="calcularHonorarios()">
-                    <i class="fas fa-calculator"></i> Calcular Honorarios
-                </button>
+<div class="form-group">
+<label>Valor del m² (calculado)</label>
+<input id="valorM2" class="form-control" disabled>
+</div>
 
-                <div class="info-box">
-                    <p><i class="fas fa-info-circle"></i> <strong>Valores vigentes Marzo 2025.</strong> Los honorarios se calculan según la Resolución oficial del CPIM basada en el valor de la obra.</p>
-                </div>
-            </div>
+<div class="form-group">
+<label>Superficie (m²)</label>
+<input type="number" id="superficie" class="form-control" min="1">
+</div>
 
-            <div class="results-section">
-                <h2 style="color: #2c5aa0; margin-bottom: 25px;">
-                    <i class="fas fa-chart-line icon"></i>Resultado del Cálculo
-                </h2>
+<div class="form-group">
+<label>Etapa del Proyecto</label>
+<select id="etapaProyecto" class="form-control">
+<option value="">Seleccione etapa</option>
+<option value="croquis">Croquis (5%)</option>
+<option value="anteproyecto">Anteproyecto (20%)</option>
+<option value="planos_construccion">Planos (40%)</option>
+<option value="proyecto_completo">Proyecto Completo (60%)</option>
+</select>
+</div>
 
-                <div id="resultados" class="hidden">
-                    <div class="result-card">
-                        <div class="result-value" id="honorarioTotal">$0</div>
-                        <div class="result-label">Honorarios Profesionales</div>
-                    </div>
+<button class="calculate-btn" onclick="calcular()">Calcular Honorarios</button>
+</div>
 
-                    <div class="breakdown" id="breakdown">
-                        <!-- El contenido se genera dinámicamente -->
-                    </div>
-                </div>
+<div class="results-section">
+<div id="resultados" class="hidden">
+<div class="result-card">
+<div class="result-value" id="total">$0</div>
+<div>Honorarios Profesionales</div>
+</div>
+<div class="breakdown" id="detalle"></div>
+</div>
+</div>
+</div>
+</div>
 
-                <div id="placeholder" class="text-center" style="color: #666; padding: 40px;">
-                    <i class="fas fa-calculator" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
-                    <p style="font-size: 1.2rem;">Complete los datos y presione "Calcular Honorarios" para ver los resultados</p>
-                </div>
-            </div>
-        </div>
-    </div>
+<script>
+const BASE_M2 = 1231951.07;
 
-    <script>
-        // Sistema de honorarios único
-        const LIMITES_HONORARIOS = {
-            primer_limite: 115000000,      // $115.000.000
-            segundo_limite: 275000000,     // $275.000.000
-            primer_porcentaje: 0.09,       // 9%
-            segundo_porcentaje: 0.07,      // 7%
-            tercer_porcentaje: 0.05        // 5%
-        };
+const TIPOLOGIAS = {
+"VIVIENDA":[
+{n:"Tradicional económica",c:0.88},
+{n:"Tradicional estándar",c:1},
+{n:"Unifamiliar",c:1.25},
+{n:"Suntuosa",c:1.36},
+{n:"Lujosa / Country",c:1.75}
+],
+"COMERCIO":[
+{n:"Minorista hasta 50 m²",c:0.63},
+{n:"50 a 300 m²",c:0.88},
+{n:"Mayor a 300 m²",c:1},
+{n:"Shopping",c:1.75}
+],
+"SALUD":[
+{n:"Consultorios",c:1.25},
+{n:"Clínicas",c:1.25},
+{n:"Hospitales",c:1.75}
+]
+};
 
-        // Etapas del proyecto
-        const ETAPAS_PROYECTO = {
-            croquis: {
-                porcentaje: 0.05,
-                descripcion: "Solo Croquis preliminares",
-                detalle: "Croquis preliminares"
-            },
-            anteproyecto: {
-                porcentaje: 0.20,
-                descripcion: "Croquis + Anteproyecto", 
-                detalle: "Croquis preliminares + Anteproyecto"
-            },
-            planos_construccion: {
-                porcentaje: 0.40,
-                descripcion: "Croquis + Anteproyecto + Planos generales",
-                detalle: "Croquis preliminares + Anteproyecto + Planos generales de construcción"
-            },
-            proyecto_completo: {
-                porcentaje: 0.60,
-                descripcion: "Proyecto Completo + Estructuras",
-                detalle: "Croquis preliminares + Anteproyecto + Planos generales + Planos de estructuras"
-            }
-        };
+const ETAPAS={
+croquis:0.05,
+anteproyecto:0.20,
+planos_construccion:0.40,
+proyecto_completo:0.60
+};
 
-        // Desglose detallado de honorarios
-        const DESGLOSE_HONORARIOS = {
-            proyecto: {
-                total: 0.60,                    // 60% del total
-                calculo_estructura: 0.18,       // 18%
-                instalacion_electrica: 0.07,    // 7%
-                instalacion_sanitaria: 0.07,    // 7%
-                instalacion_gas: 0.04,          // 4%
-                // Resto del proyecto: 24% (60% - 36%)
-                resto_proyecto: 0.24
-            },
-            direccion: {
-                total: 0.40,                    // 40% del total
-                calculo_estructura: 0.18,       // 18%
-                instalacion_electrica: 0.07,    // 7%
-                instalacion_sanitaria: 0.07,    // 7%
-                instalacion_gas: 0.04,          // 4%
-                // Resto de dirección: 4% (40% - 36%)
-                resto_direccion: 0.04
-            }
-        };
+const cat=document.getElementById("categoria");
+const tip=document.getElementById("tipologia");
+const m2=document.getElementById("valorM2");
 
-        const HONORARIO_MINIMO = 387709;
+Object.keys(TIPOLOGIAS).forEach(c=>{
+let o=document.createElement("option");
+o.value=c;o.textContent=c;cat.appendChild(o);
+});
 
-        function formatearMoneda(valor) {
-            return new Intl.NumberFormat('es-AR', {
-                style: 'currency',
-                currency: 'ARS',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(valor);
-        }
+cat.onchange=()=>{
+tip.innerHTML='<option value="">Seleccione tipología</option>';
+tip.disabled=true;m2.value="";
+if(!cat.value)return;
+TIPOLOGIAS[cat.value].forEach((t,i)=>{
+let o=document.createElement("option");
+o.value=i;o.textContent=t.n;tip.appendChild(o);
+});
+tip.disabled=false;
+};
 
-        function calcularHonorariosPorValor(valorObra) {
-            let honorarios = 0;
-            let porcentajeUsado = '';
+tip.onchange=()=>{
+if(tip.value==="")return;
+let coef=TIPOLOGIAS[cat.value][tip.value].c;
+let v=BASE_M2*coef;
+m2.value=v.toLocaleString("es-AR",{style:"currency",currency:"ARS"});
+m2.dataset.valor=v;
+};
 
-            if (valorObra <= LIMITES_HONORARIOS.primer_limite) {
-                // Hasta $115.000.000: 9%
-                honorarios = valorObra * LIMITES_HONORARIOS.primer_porcentaje;
-                porcentajeUsado = '9%';
-            } else if (valorObra <= LIMITES_HONORARIOS.segundo_limite) {
-                // De $115.000.001 a $275.000.000: 9% + 7%
-                const primerTramo = LIMITES_HONORARIOS.primer_limite * LIMITES_HONORARIOS.primer_porcentaje;
-                const segundoTramo = (valorObra - LIMITES_HONORARIOS.primer_limite) * LIMITES_HONORARIOS.segundo_porcentaje;
-                honorarios = primerTramo + segundoTramo;
-                porcentajeUsado = '9% + 7%';
-            } else {
-                // Más de $275.000.000: 9% + 7% + 5%
-                const primerTramo = LIMITES_HONORARIOS.primer_limite * LIMITES_HONORARIOS.primer_porcentaje;
-                const segundoTramo = (LIMITES_HONORARIOS.segundo_limite - LIMITES_HONORARIOS.primer_limite) * LIMITES_HONORARIOS.segundo_porcentaje;
-                const tercerTramo = (valorObra - LIMITES_HONORARIOS.segundo_limite) * LIMITES_HONORARIOS.tercer_porcentaje;
-                honorarios = primerTramo + segundoTramo + tercerTramo;
-                porcentajeUsado = '9% + 7% + 5%';
-            }
+function calcular(){
+const sup=+document.getElementById("superficie").value;
+const etapa=document.getElementById("etapaProyecto").value;
+const vm2=+m2.dataset.valor||0;
+if(!vm2||!sup||!etapa){alert("Complete todos los datos");return;}
 
-            return { honorarios, porcentajeUsado };
-        }
+const valorObra=vm2*sup;
+let honorarios=valorObra<=115000000?valorObra*0.09:
+valorObra<=275000000?115000000*0.09+(valorObra-115000000)*0.07:
+115000000*0.09+(275000000-115000000)*0.07+(valorObra-275000000)*0.05;
 
-        function calcularHonorarios() {
-            const costoM2 = parseFloat(document.getElementById('costoM2').value) || 0;
-            const superficie = parseFloat(document.getElementById('superficie').value) || 0;
-            const etapaProyecto = document.getElementById('etapaProyecto').value;
+honorarios=Math.max(honorarios,387709);
+const total=honorarios*ETAPAS[etapa];
 
-            // Validar campos requeridos
-            if (superficie <= 0) {
-                alert('La superficie debe ser mayor a 0');
-                return;
-            }
+document.getElementById("total").innerText=
+total.toLocaleString("es-AR",{style:"currency",currency:"ARS"});
 
-            if (costoM2 <= 0) {
-                alert('El costo por metro cuadrado debe ser mayor a 0');
-                return;
-            }
+document.getElementById("detalle").innerHTML=`
+<div class="breakdown-item"><span>Valor obra</span><span>${valorObra.toLocaleString("es-AR",{style:"currency",currency:"ARS"})}</span></div>
+<div class="breakdown-item"><span>Superficie</span><span>${sup} m²</span></div>
+<div class="breakdown-item"><span>Valor m²</span><span>${vm2.toLocaleString("es-AR",{style:"currency",currency:"ARS"})}</span></div>
+`;
 
-            if (!etapaProyecto) {
-                alert('Debe seleccionar una etapa del proyecto');
-                return;
-            }
-
-            // Calcular valor de la obra
-            const precioM2 = costoM2;
-            const valorObra = superficie * precioM2;
-
-            // Calcular honorarios totales (base 100%)
-            const resultado = calcularHonorariosPorValor(valorObra);
-            const honorariosCompletos = resultado.honorarios;
-
-            // Aplicar honorario mínimo
-            const honorarioBase = Math.max(honorariosCompletos, HONORARIO_MINIMO);
-
-            // Calcular honorarios según la etapa seleccionada
-            const etapaSeleccionada = ETAPAS_PROYECTO[etapaProyecto];
-            const honorarioProyecto = honorarioBase * etapaSeleccionada.porcentaje;
-
-            // Calcular honorarios de dirección (40% del total base)
-            const honorariosDireccion = honorarioBase * DESGLOSE_HONORARIOS.direccion.total;
-
-            // Desglose de la dirección (solo si es proyecto completo, sino no aplica)
-            let direccionEstructura = 0;
-            let direccionElectrica = 0;
-            let direccionSanitaria = 0;
-            let direccionGas = 0;
-            let direccionResto = 0;
-
-            if (etapaProyecto === 'proyecto_completo') {
-                direccionEstructura = honorarioBase * DESGLOSE_HONORARIOS.direccion.calculo_estructura;
-                direccionElectrica = honorarioBase * DESGLOSE_HONORARIOS.direccion.instalacion_electrica;
-                direccionSanitaria = honorarioBase * DESGLOSE_HONORARIOS.direccion.instalacion_sanitaria;
-                direccionGas = honorarioBase * DESGLOSE_HONORARIOS.direccion.instalacion_gas;
-                direccionResto = honorarioBase * DESGLOSE_HONORARIOS.direccion.resto_direccion;
-            }
-
-            // Mostrar todos los resultados
-            mostrarResultadosCompletos({
-                valorObra,
-                superficie,
-                precioM2,
-                porcentajeUsado: resultado.porcentajeUsado,
-                honorariosCalculados: honorariosCompletos,
-                honorarioBase,
-                etapaProyecto,
-                etapaSeleccionada,
-                honorarioProyecto,
-                honorariosDireccion,
-                direccionEstructura,
-                direccionElectrica,
-                direccionSanitaria,
-                direccionGas,
-                direccionResto
-            });
-        }
-
-        function mostrarResultadosCompletos(datos) {
-            // Calcular total final
-            let totalFinal = datos.honorarioProyecto;
-            
-            // Solo agregar dirección si es proyecto completo
-            if (datos.etapaProyecto === 'proyecto_completo') {
-                totalFinal += datos.honorariosDireccion;
-            }
-
-            // Actualizar valor principal
-            document.getElementById('honorarioTotal').textContent = formatearMoneda(totalFinal);
-
-            // Mostrar desglose detallado
-            mostrarDesgloseDetallado(datos, totalFinal);
-
-            // Mostrar sección de resultados
-            document.getElementById('placeholder').classList.add('hidden');
-            document.getElementById('resultados').classList.remove('hidden');
-
-            // Scroll suave hacia los resultados
-            document.getElementById('resultados').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest' 
-            });
-        }
-
-        function mostrarDesgloseDetallado(datos, totalFinal) {
-            const breakdown = document.getElementById('breakdown');
-            
-            // Crear el HTML del desglose detallado
-            let html = `
-                <h3><i class="fas fa-list-ul icon"></i>Desglose Completo de Honorarios</h3>
-                
-                <!-- Información básica -->
-                <div class="breakdown-item">
-                    <span>Valor de la Obra:</span>
-                    <span>${formatearMoneda(datos.valorObra)}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span>Superficie:</span>
-                    <span>${datos.superficie} m²</span>
-                </div>
-                <div class="breakdown-item">
-                    <span>Precio por m²:</span>
-                    <span>${formatearMoneda(datos.precioM2)}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span>Porcentaje Aplicado:</span>
-                    <span>${datos.porcentajeUsado}</span>
-                </div>
-                
-                <hr style="margin: 20px 0; border: 1px solid #e8ecf4;">
-                
-                <!-- PROYECTO -->
-                <div class="breakdown-item" style="background: #f0f8ff; padding: 10px; border-radius: 5px;">
-                    <span><strong>${datos.etapaSeleccionada.descripcion} (${(datos.etapaSeleccionada.porcentaje * 100).toFixed(0)}%):</strong></span>
-                    <span><strong>${formatearMoneda(datos.honorarioProyecto)}</strong></span>
-                </div>
-                <div class="breakdown-item" style="margin-left: 20px; font-size: 0.9rem; color: #666;">
-                    <span style="font-style: italic;">${datos.etapaSeleccionada.detalle}</span>
-                    <span></span>
-                </div>
-            `;
-
-            // Solo mostrar desglose detallado si es proyecto completo
-            if (datos.etapaProyecto === 'proyecto_completo') {
-                // Calcular desgloses del proyecto
-                const proyectoEstructura = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.calculo_estructura;
-                const proyectoElectrica = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.instalacion_electrica;
-                const proyectoSanitaria = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.instalacion_sanitaria;
-                const proyectoGas = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.instalacion_gas;
-                const proyectoResto = datos.honorarioBase * DESGLOSE_HONORARIOS.proyecto.resto_proyecto;
-
-                html += `
-                    <!-- Desglose detallado del PROYECTO COMPLETO (60%) -->
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Cálculo de estructura (18%):</span>
-                        <span>${formatearMoneda(proyectoEstructura)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Proyecto instalación eléctrica (7%):</span>
-                        <span>${formatearMoneda(proyectoElectrica)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Proyecto instalación sanitaria (7%):</span>
-                        <span>${formatearMoneda(proyectoSanitaria)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Proyecto instalación de gas (4%):</span>
-                        <span>${formatearMoneda(proyectoGas)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Resto del proyecto (24%):</span>
-                        <span>${formatearMoneda(proyectoResto)}</span>
-                    </div>
-                    
-                    <hr style="margin: 15px 0; border: 1px solid #e8ecf4;">
-                    
-                    <!-- DIRECCIÓN (40%) -->
-                    <div class="breakdown-item" style="background: #fff0f5; padding: 10px; border-radius: 5px;">
-                        <span><strong>DIRECCIÓN DE OBRA (40%):</strong></span>
-                        <span><strong>${formatearMoneda(datos.honorariosDireccion)}</strong></span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Dirección cálculo estructura (18%):</span>
-                        <span>${formatearMoneda(datos.direccionEstructura)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Dirección instalación eléctrica (7%):</span>
-                        <span>${formatearMoneda(datos.direccionElectrica)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Dirección instalación sanitaria (7%):</span>
-                        <span>${formatearMoneda(datos.direccionSanitaria)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Dirección instalación de gas (4%):</span>
-                        <span>${formatearMoneda(datos.direccionGas)}</span>
-                    </div>
-                    <div class="breakdown-item" style="margin-left: 20px;">
-                        <span>• Resto de dirección (4%):</span>
-                        <span>${formatearMoneda(datos.direccionResto)}</span>
-                    </div>
-                `;
-            } else {
-                html += `
-                    <div class="breakdown-item" style="margin-left: 20px; font-size: 0.9rem; color: #888; font-style: italic;">
-                        <span>* La dirección de obra (40%) solo aplica para proyecto completo</span>
-                        <span></span>
-                    </div>
-                `;
-            }
-
-            html += `
-                <hr style="margin: 20px 0; border: 2px solid #2c5aa0;">
-                
-                <div class="breakdown-item" style="background: #e8f4fd; padding: 15px; border-radius: 5px;">
-                    <span><strong>TOTAL HONORARIOS:</strong></span>
-                    <span><strong>${formatearMoneda(totalFinal)}</strong></span>
-                </div>
-            `;
-
-            breakdown.innerHTML = html;
-        }
-
-        // Limpiar resultados cuando se cambian los datos
-        document.querySelectorAll('input, select').forEach(element => {
-            element.addEventListener('input', function() {
-                document.getElementById('placeholder').classList.remove('hidden');
-                document.getElementById('resultados').classList.add('hidden');
-            });
-        });
-
-        // Formatear el campo de costo por m² mientras se escribe
-        document.getElementById('costoM2').addEventListener('input', function(e) {
-            let valor = e.target.value;
-            
-            // Remover caracteres no numéricos excepto punto
-            valor = valor.replace(/[^\d.]/g, '');
-            
-            // Asegurar que solo haya un punto decimal
-            const partes = valor.split('.');
-            if (partes.length > 2) {
-                valor = partes[0] + '.' + partes.slice(1).join('');
-            }
-            
-            // Actualizar el valor sin formato para cálculos
-            e.target.value = valor;
-            
-            // Mostrar valor formateado en placeholder o hint si hay valor
-            if (valor && !isNaN(parseFloat(valor))) {
-                const valorNumerico = parseFloat(valor);
-                const valorFormateado = formatearMoneda(valorNumerico);
-                
-                // Crear o actualizar el elemento de vista previa
-                let preview = document.getElementById('costoM2Preview');
-                if (!preview) {
-                    preview = document.createElement('div');
-                    preview.id = 'costoM2Preview';
-                    preview.className = 'small-text';
-                    preview.style.color = '#2c5aa0';
-                    preview.style.fontWeight = '600';
-                    preview.style.marginTop = '5px';
-                    e.target.parentNode.appendChild(preview);
-                }
-                preview.textContent = `Vista previa: ${valorFormateado}`;
-            } else {
-                // Remover vista previa si no hay valor válido
-                const preview = document.getElementById('costoM2Preview');
-                if (preview) {
-                    preview.remove();
-                }
-            }
-        });
-
-        // Limpiar vista previa cuando el campo pierde el foco si está vacío
-        document.getElementById('costoM2').addEventListener('blur', function(e) {
-            if (!e.target.value) {
-                const preview = document.getElementById('costoM2Preview');
-                if (preview) {
-                    preview.remove();
-                }
-            }
-        });
-    </script>
+document.getElementById("resultados").classList.remove("hidden");
+}
+</script>
 </body>
 </html>
