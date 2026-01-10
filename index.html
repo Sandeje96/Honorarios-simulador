@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulador de Honorarios - CPIM</title>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 <style>
@@ -15,190 +16,457 @@ min-height:100vh;padding:20px}
 .container{
 max-width:1200px;margin:0 auto;
 background:rgba(255,255,255,.95);
-border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+border-radius:20px;
+box-shadow:0 20px 40px rgba(0,0,0,.1);
+overflow:hidden}
 .header{
 background:linear-gradient(135deg,#2c5aa0 0%,#1e3c72 100%);
 color:#fff;padding:30px;text-align:center}
-.header h1{font-size:2.5rem;margin-bottom:10px}
+.header h1{font-size:2.5rem;margin-bottom:10px;font-weight:700}
+.header p{opacity:.9}
 .content{
-display:grid;grid-template-columns:1fr 1fr;
-gap:30px;padding:40px}
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+padding:40px}
 .form-section,.results-section{
-background:#fff;padding:30px;border-radius:15px;
+background:#fff;
+padding:30px;
+border-radius:15px;
 box-shadow:0 10px 30px rgba(0,0,0,.08);
 border:1px solid #e8ecf4}
 .form-group{margin-bottom:25px}
-label{font-weight:600;color:#2c5aa0;margin-bottom:8px;display:block}
+.form-group label{
+display:block;
+margin-bottom:8px;
+font-weight:600;
+color:#2c5aa0}
 .form-control{
-width:100%;padding:12px 15px;border-radius:10px;
-border:2px solid #e8ecf4;background:#fafbfc}
-.form-control:disabled{background:#eee;font-weight:600}
+width:100%;
+padding:12px 15px;
+border:2px solid #e8ecf4;
+border-radius:10px;
+font-size:1rem;
+background:#fafbfc}
+.form-control:disabled{
+background:#eee;
+font-weight:600}
 .calculate-btn{
-width:100%;padding:15px;border:none;border-radius:10px;
-background:linear-gradient(135deg,#2c5aa0,#1e3c72);
-color:#fff;font-size:1.1rem;cursor:pointer}
+background:linear-gradient(135deg,#2c5aa0 0%,#1e3c72 100%);
+color:#fff;
+border:none;
+padding:15px 30px;
+border-radius:10px;
+font-size:1.1rem;
+font-weight:600;
+cursor:pointer;
+width:100%}
+.results-section .hidden{display:none}
 .result-card{
-background:linear-gradient(135deg,#667eea,#764ba2);
-color:#fff;padding:25px;border-radius:15px;text-align:center}
-.result-value{font-size:2.5rem;font-weight:700}
-.breakdown{background:#f8f9fc;padding:20px;border-radius:10px}
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+color:#fff;
+padding:25px;
+border-radius:15px;
+margin-bottom:20px;
+text-align:center}
+.result-value{
+font-size:2.5rem;
+font-weight:700}
+.breakdown{
+background:#f8f9fc;
+border-radius:10px;
+padding:20px;
+border-left:4px solid #2c5aa0}
 .breakdown-item{
-display:flex;justify-content:space-between;
-padding:6px 0;border-bottom:1px solid #e8ecf4}
+display:flex;
+justify-content:space-between;
+padding:8px 0;
+border-bottom:1px solid #e8ecf4}
 .hidden{display:none}
 @media(max-width:768px){
 .content{grid-template-columns:1fr;padding:20px}
+.header h1{font-size:2rem}
 }
 </style>
 </head>
 
 <body>
 <div class="container">
+
 <div class="header">
 <h1><i class="fas fa-calculator"></i> Simulador de Honorarios</h1>
-<p>Consejo Profesional de Ingeniería de Misiones - Marzo 2025</p>
+<p>Consejo Profesional de Ingeniería de Misiones – Marzo 2025</p>
 </div>
 
 <div class="content">
+
+<!-- FORMULARIO -->
 <div class="form-section">
-<h2 style="color:#2c5aa0;margin-bottom:20px">
+<h2 style="color:#2c5aa0;margin-bottom:25px">
 <i class="fas fa-edit"></i> Datos del Proyecto
 </h2>
 
 <div class="form-group">
 <label>Categoría de Obra</label>
 <select id="categoria" class="form-control">
-<option value="">Seleccione categoría</option>
+<option value="">Seleccione una categoría</option>
 </select>
 </div>
 
 <div class="form-group">
-<label>Tipología</label>
+<label>Tipología de Obra</label>
 <select id="tipologia" class="form-control" disabled>
-<option value="">Seleccione tipología</option>
+<option value="">Seleccione una tipología</option>
 </select>
 </div>
 
 <div class="form-group">
 <label>Valor del m² (calculado)</label>
-<input id="valorM2" class="form-control" disabled>
+<input type="text" id="valorM2Calculado" class="form-control" disabled>
 </div>
 
 <div class="form-group">
-<label>Superficie (m²)</label>
-<input type="number" id="superficie" class="form-control" min="1">
+<label>Superficie Cubierta (m²)</label>
+<input type="number" id="superficie" class="form-control" min="1" step="0.01">
 </div>
 
 <div class="form-group">
 <label>Etapa del Proyecto</label>
 <select id="etapaProyecto" class="form-control">
-<option value="">Seleccione etapa</option>
-<option value="croquis">Croquis (5%)</option>
-<option value="anteproyecto">Anteproyecto (20%)</option>
-<option value="planos_construccion">Planos (40%)</option>
-<option value="proyecto_completo">Proyecto Completo (60%)</option>
+<option value="">Seleccione la etapa</option>
+<option value="croquis">Solo Croquis preliminares (5%)</option>
+<option value="anteproyecto">Croquis + Anteproyecto (20%)</option>
+<option value="planos_construccion">Croquis + Anteproyecto + Planos (40%)</option>
+<option value="proyecto_completo">Proyecto Completo + Estructuras (60%)</option>
 </select>
 </div>
 
-<button class="calculate-btn" onclick="calcular()">Calcular Honorarios</button>
+<button class="calculate-btn" onclick="calcularHonorarios()">
+Calcular Honorarios
+</button>
 </div>
 
+<!-- RESULTADOS -->
 <div class="results-section">
+<h2 style="color:#2c5aa0;margin-bottom:25px">
+<i class="fas fa-chart-line"></i> Resultado del Cálculo
+</h2>
+
 <div id="resultados" class="hidden">
 <div class="result-card">
-<div class="result-value" id="total">$0</div>
+<div class="result-value" id="honorarioTotal">$0</div>
 <div>Honorarios Profesionales</div>
 </div>
-<div class="breakdown" id="detalle"></div>
+
+<div class="breakdown" id="breakdown"></div>
 </div>
+
+<div id="placeholder" style="color:#666;padding:40px;text-align:center">
+<i class="fas fa-calculator" style="font-size:4rem;opacity:.3"></i>
+<p style="font-size:1.2rem;margin-top:15px">
+Complete los datos y presione “Calcular Honorarios”
+</p>
 </div>
+
+</div>
+
 </div>
 </div>
 
+<!-- LOS SCRIPTS CONTINUAN EN LOS SIGUIENTES MENSAJES -->
+</body>
+</html>
 <script>
-const BASE_M2 = 1231951.07;
+/* ======================================================
+   VALOR BASE OFICIAL DEL m² – MARZO 2025
+====================================================== */
+const VALOR_BASE_M2 = 1231951.07;
 
-const TIPOLOGIAS = {
-"VIVIENDA":[
-{n:"Tradicional económica",c:0.88},
-{n:"Tradicional estándar",c:1},
-{n:"Unifamiliar",c:1.25},
-{n:"Suntuosa",c:1.36},
-{n:"Lujosa / Country",c:1.75}
+/* ======================================================
+   CATEGORÍAS Y TIPOLOGÍAS OFICIALES CPIM
+   (solo coeficientes > 0)
+====================================================== */
+const TIPOLOGIAS_CPIM = {
+"VIVIENDA DE INTERES SOCIAL": [
+ {codigo:"1.1.2001", nombre:"Prefabricadas económicas de madera", coef:0.13},
+ {codigo:"1.1.2002", nombre:"Menores de 70 m² (individuales)", coef:0.63}
 ],
-"COMERCIO":[
-{n:"Minorista hasta 50 m²",c:0.63},
-{n:"50 a 300 m²",c:0.88},
-{n:"Mayor a 300 m²",c:1},
-{n:"Shopping",c:1.75}
+"VIVIENDA": [
+ {codigo:"1.2.2001", nombre:"Construcción tradicional económica (hasta 100 m²)", coef:0.88},
+ {codigo:"1.2.2002", nombre:"Construcción tradicional estándar", coef:1.00},
+ {codigo:"1.2.2003", nombre:"Vivienda unifamiliar", coef:1.25},
+ {codigo:"1.2.2004", nombre:"Construcción tradicional suntuosa", coef:1.36},
+ {codigo:"1.2.2005", nombre:"Construcción tradicional lujosa / country", coef:1.75}
 ],
-"SALUD":[
-{n:"Consultorios",c:1.25},
-{n:"Clínicas",c:1.25},
-{n:"Hospitales",c:1.75}
+"VIVIENDA MULTIFAMILIAR": [
+ {codigo:"1.3.2001", nombre:"Hasta 4 niveles o plantas", coef:1.13},
+ {codigo:"1.3.2002", nombre:"Más de 4 niveles o plantas", coef:1.25}
+],
+"VIVIENDAS – PISCINAS": [
+ {codigo:"1.4.2001", nombre:"Hormigón armado revestidas con bomba", coef:0.63},
+ {codigo:"1.4.2002", nombre:"Piscinas no comprendidas en 1.4.1", coef:0.31}
+],
+"CULTO / ARQUITECTURA FUNERARIA": [
+ {codigo:"10.1", nombre:"Capillas o equivalentes", coef:0.88},
+ {codigo:"10.2", nombre:"Iglesias o equivalentes", coef:1.25},
+ {codigo:"10.3", nombre:"Salas velatorias", coef:1.25}
+],
+"CEMENTERIOS": [
+ {codigo:"10.5.2001", nombre:"Parquizaciones espacios exteriores", coef:0.03},
+ {codigo:"10.5.2002", nombre:"Nichos (por unidad)", coef:0.38},
+ {codigo:"10.5.2003", nombre:"Bóvedas o panteones", coef:2.25}
+],
+"ESPACIOS URBANOS DESCUBIERTOS": [
+ {codigo:"11.10", nombre:"Toldos", coef:0.10},
+ {codigo:"11.11", nombre:"Antenas celulares", coef:0.10},
+ {codigo:"11.12", nombre:"Antenas parabólicas", coef:0.10},
+ {codigo:"11.8", nombre:"Parquizaciones", coef:0.31},
+ {codigo:"11.9", nombre:"Marquesinas", coef:0.10}
+],
+"ADMINISTRACION": [
+ {codigo:"12.1", nombre:"Edificios privados", coef:1.25},
+ {codigo:"12.2", nombre:"Edificios públicos", coef:1.25},
+ {codigo:"12.3", nombre:"Complejos penitenciarios", coef:1.88}
+],
+"DEPORTES Y RECREACION": [
+ {codigo:"13.1", nombre:"Club social", coef:0.88},
+ {codigo:"13.2.2001", nombre:"Sin tribuna c/est. luces ≤15 m", coef:1.25},
+ {codigo:"13.2.2004", nombre:"Con tribuna y estructura >15 m", coef:1.34},
+ {codigo:"13.3.2001", nombre:"Natatorios descubiertos", coef:0.63},
+ {codigo:"13.4", nombre:"Gimnasio", coef:0.63}
+],
+"COCHERAS": [
+ {codigo:"14.1", nombre:"Planta única cubierta liviana", coef:0.38},
+ {codigo:"14.2", nombre:"Planta única H°A°", coef:0.50},
+ {codigo:"14.3", nombre:"Más de una planta sin elevadores", coef:0.88},
+ {codigo:"14.4", nombre:"Más de una planta con elevadores", coef:1.25}
+],
+"INDUSTRIALES Y ALMACENAJE": [
+ {codigo:"2.1", nombre:"Depósito / industria baja complejidad", coef:0.38},
+ {codigo:"2.2.2001", nombre:"Depósitos que superan parámetros 2.1", coef:0.56},
+ {codigo:"2.2.2002", nombre:"Industrias que superan parámetros 2.1", coef:0.75},
+ {codigo:"2.3", nombre:"Alta complejidad / laboratorios", coef:1.25},
+ {codigo:"2.4", nombre:"Invernáculos / cría de animales", coef:0.13},
+ {codigo:"2.5", nombre:"Tinglados y coberturas", coef:0.25}
+],
+"COMERCIO": [
+ {codigo:"3.1", nombre:"Minorista hasta 50 m²", coef:0.63},
+ {codigo:"3.2", nombre:"Minorista / Mayorista 50 a 300 m²", coef:0.88},
+ {codigo:"3.3", nombre:"Mayor a 300 m²", coef:1.00},
+ {codigo:"3.4", nombre:"Shopping", coef:1.75}
+],
+"EDUCACION": [
+ {codigo:"5.1", nombre:"Hasta 200 m²", coef:0.63},
+ {codigo:"5.2", nombre:"200 a 1000 m²", coef:1.25},
+ {codigo:"5.3", nombre:"Más de 1000 m²", coef:1.75}
+],
+"SALUD": [
+ {codigo:"6.1", nombre:"Dispensarios / primeros auxilios", coef:0.88},
+ {codigo:"6.2", nombre:"Consultorios y laboratorios", coef:1.25},
+ {codigo:"6.3", nombre:"Clínicas / sanatorios", coef:1.25},
+ {codigo:"6.4", nombre:"Hospitales / alta complejidad", coef:1.75}
+],
+"HOTELERIA": [
+ {codigo:"8.1", nombre:"Hosterías y pensiones", coef:1.00},
+ {codigo:"8.2", nombre:"Hoteles 2 y 3 estrellas", coef:1.25},
+ {codigo:"8.3", nombre:"Albergues transitorios", coef:1.36},
+ {codigo:"8.4", nombre:"Hoteles 4 y 5 estrellas", coef:1.36},
+ {codigo:"8.5", nombre:"Apart hotel", coef:1.25}
+],
+"GASTRONOMIA": [
+ {codigo:"9.1", nombre:"Parrillas y casas de comida", coef:0.88},
+ {codigo:"9.2", nombre:"Restaurantes / bares", coef:1.00},
+ {codigo:"9.3", nombre:"Restaurantes de categoría", coef:1.36}
 ]
 };
 
-const ETAPAS={
-croquis:0.05,
-anteproyecto:0.20,
-planos_construccion:0.40,
-proyecto_completo:0.60
-};
+/* ======================================================
+   CARGA DINÁMICA DE SELECTS
+====================================================== */
+const categoriaSelect = document.getElementById("categoria");
+const tipologiaSelect = document.getElementById("tipologia");
+const valorM2Input = document.getElementById("valorM2Calculado");
 
-const cat=document.getElementById("categoria");
-const tip=document.getElementById("tipologia");
-const m2=document.getElementById("valorM2");
-
-Object.keys(TIPOLOGIAS).forEach(c=>{
-let o=document.createElement("option");
-o.value=c;o.textContent=c;cat.appendChild(o);
+Object.keys(TIPOLOGIAS_CPIM).forEach(cat=>{
+ const opt=document.createElement("option");
+ opt.value=cat;
+ opt.textContent=cat;
+ categoriaSelect.appendChild(opt);
 });
 
-cat.onchange=()=>{
-tip.innerHTML='<option value="">Seleccione tipología</option>';
-tip.disabled=true;m2.value="";
-if(!cat.value)return;
-TIPOLOGIAS[cat.value].forEach((t,i)=>{
-let o=document.createElement("option");
-o.value=i;o.textContent=t.n;tip.appendChild(o);
+categoriaSelect.addEventListener("change",()=>{
+ tipologiaSelect.innerHTML='<option value="">Seleccione una tipología</option>';
+ tipologiaSelect.disabled=true;
+ valorM2Input.value="";
+ valorM2Input.dataset.valor="";
+ if(!categoriaSelect.value) return;
+
+ TIPOLOGIAS_CPIM[categoriaSelect.value].forEach((t,i)=>{
+   const opt=document.createElement("option");
+   opt.value=i;
+   opt.textContent=`${t.codigo} – ${t.nombre}`;
+   tipologiaSelect.appendChild(opt);
+ });
+ tipologiaSelect.disabled=false;
 });
-tip.disabled=false;
+
+tipologiaSelect.addEventListener("change",()=>{
+ if(tipologiaSelect.value==="") return;
+ const t=TIPOLOGIAS_CPIM[categoriaSelect.value][tipologiaSelect.value];
+ const valor=VALOR_BASE_M2 * t.coef;
+ valorM2Input.value = valor.toLocaleString("es-AR",{style:"currency",currency:"ARS"});
+ valorM2Input.dataset.valor = valor;
+});
+</script>
+<script>
+/* ======================================================
+   SISTEMA DE HONORARIOS – IGUAL AL ORIGINAL
+====================================================== */
+
+const LIMITES_HONORARIOS = {
+ primer_limite: 115000000,
+ segundo_limite: 275000000,
+ primer_porcentaje: 0.09,
+ segundo_porcentaje: 0.07,
+ tercer_porcentaje: 0.05
 };
 
-tip.onchange=()=>{
-if(tip.value==="")return;
-let coef=TIPOLOGIAS[cat.value][tip.value].c;
-let v=BASE_M2*coef;
-m2.value=v.toLocaleString("es-AR",{style:"currency",currency:"ARS"});
-m2.dataset.valor=v;
+const HONORARIO_MINIMO = 387709;
+
+const ETAPAS_PROYECTO = {
+ croquis: {
+  porcentaje: 0.05,
+  descripcion: "Solo Croquis preliminares",
+  detalle: "Croquis preliminares"
+ },
+ anteproyecto: {
+  porcentaje: 0.20,
+  descripcion: "Croquis + Anteproyecto",
+  detalle: "Croquis preliminares + Anteproyecto"
+ },
+ planos_construccion: {
+  porcentaje: 0.40,
+  descripcion: "Croquis + Anteproyecto + Planos generales",
+  detalle: "Croquis preliminares + Anteproyecto + Planos generales"
+ },
+ proyecto_completo: {
+  porcentaje: 0.60,
+  descripcion: "Proyecto Completo + Estructuras",
+  detalle: "Croquis preliminares + Anteproyecto + Planos + Estructuras"
+ }
 };
 
-function calcular(){
-const sup=+document.getElementById("superficie").value;
-const etapa=document.getElementById("etapaProyecto").value;
-const vm2=+m2.dataset.valor||0;
-if(!vm2||!sup||!etapa){alert("Complete todos los datos");return;}
+const DESGLOSE_HONORARIOS = {
+ proyecto: {
+  total: 0.60,
+  calculo_estructura: 0.18,
+  instalacion_electrica: 0.07,
+  instalacion_sanitaria: 0.07,
+  instalacion_gas: 0.04,
+  resto_proyecto: 0.24
+ },
+ direccion: {
+  total: 0.40,
+  calculo_estructura: 0.18,
+  instalacion_electrica: 0.07,
+  instalacion_sanitaria: 0.07,
+  instalacion_gas: 0.04,
+  resto_direccion: 0.04
+ }
+};
 
-const valorObra=vm2*sup;
-let honorarios=valorObra<=115000000?valorObra*0.09:
-valorObra<=275000000?115000000*0.09+(valorObra-115000000)*0.07:
-115000000*0.09+(275000000-115000000)*0.07+(valorObra-275000000)*0.05;
+function formatearMoneda(valor){
+ return new Intl.NumberFormat("es-AR",{
+  style:"currency",
+  currency:"ARS",
+  minimumFractionDigits:0
+ }).format(valor);
+}
 
-honorarios=Math.max(honorarios,387709);
-const total=honorarios*ETAPAS[etapa];
+function calcularHonorariosPorValor(valorObra){
+ let honorarios=0;
+ let porcentajeUsado="";
 
-document.getElementById("total").innerText=
-total.toLocaleString("es-AR",{style:"currency",currency:"ARS"});
+ if(valorObra<=LIMITES_HONORARIOS.primer_limite){
+  honorarios=valorObra*LIMITES_HONORARIOS.primer_porcentaje;
+  porcentajeUsado="9%";
+ }else if(valorObra<=LIMITES_HONORARIOS.segundo_limite){
+  honorarios=
+   LIMITES_HONORARIOS.primer_limite*0.09 +
+   (valorObra-LIMITES_HONORARIOS.primer_limite)*0.07;
+  porcentajeUsado="9% + 7%";
+ }else{
+  honorarios=
+   LIMITES_HONORARIOS.primer_limite*0.09 +
+   (LIMITES_HONORARIOS.segundo_limite-LIMITES_HONORARIOS.primer_limite)*0.07 +
+   (valorObra-LIMITES_HONORARIOS.segundo_limite)*0.05;
+  porcentajeUsado="9% + 7% + 5%";
+ }
 
-document.getElementById("detalle").innerHTML=`
-<div class="breakdown-item"><span>Valor obra</span><span>${valorObra.toLocaleString("es-AR",{style:"currency",currency:"ARS"})}</span></div>
-<div class="breakdown-item"><span>Superficie</span><span>${sup} m²</span></div>
-<div class="breakdown-item"><span>Valor m²</span><span>${vm2.toLocaleString("es-AR",{style:"currency",currency:"ARS"})}</span></div>
-`;
+ return {honorarios,porcentajeUsado};
+}
 
-document.getElementById("resultados").classList.remove("hidden");
+function calcularHonorarios(){
+
+ const superficie=parseFloat(document.getElementById("superficie").value)||0;
+ const etapaProyecto=document.getElementById("etapaProyecto").value;
+ const valorM2=parseFloat(document.getElementById("valorM2Calculado").dataset.valor)||0;
+
+ if(superficie<=0){
+  alert("La superficie debe ser mayor a 0");
+  return;
+ }
+ if(!valorM2){
+  alert("Debe seleccionar una categoría y tipología");
+  return;
+ }
+ if(!etapaProyecto){
+  alert("Debe seleccionar una etapa del proyecto");
+  return;
+ }
+
+ const valorObra=superficie*valorM2;
+
+ const resultado=calcularHonorariosPorValor(valorObra);
+ const honorariosBase=Math.max(resultado.honorarios,HONORARIO_MINIMO);
+
+ const etapa=ETAPAS_PROYECTO[etapaProyecto];
+ const honorarioProyecto=honorariosBase*etapa.porcentaje;
+ const honorariosDireccion=honorariosBase*DESGLOSE_HONORARIOS.direccion.total;
+
+ let totalFinal=honorarioProyecto;
+ if(etapaProyecto==="proyecto_completo"){
+  totalFinal+=honorariosDireccion;
+ }
+
+ document.getElementById("honorarioTotal").textContent=formatearMoneda(totalFinal);
+
+ let html=`
+ <h3>Desglose Completo de Honorarios</h3>
+ <div class="breakdown-item"><span>Valor de la Obra:</span><span>${formatearMoneda(valorObra)}</span></div>
+ <div class="breakdown-item"><span>Superficie:</span><span>${superficie} m²</span></div>
+ <div class="breakdown-item"><span>Valor m²:</span><span>${formatearMoneda(valorM2)}</span></div>
+ <div class="breakdown-item"><span>Porcentaje aplicado:</span><span>${resultado.porcentajeUsado}</span></div>
+ <hr>
+ <div class="breakdown-item"><strong>${etapa.descripcion} (${etapa.porcentaje*100}%)</strong><strong>${formatearMoneda(honorarioProyecto)}</strong></div>
+ <div class="breakdown-item"><em>${etapa.detalle}</em></div>
+ `;
+
+ if(etapaProyecto==="proyecto_completo"){
+  html+=`
+  <hr>
+  <div class="breakdown-item"><strong>Dirección de Obra (40%)</strong><strong>${formatearMoneda(honorariosDireccion)}</strong></div>
+  `;
+ }
+
+ html+=`
+ <hr style="border:2px solid #2c5aa0">
+ <div class="breakdown-item"><strong>TOTAL HONORARIOS</strong><strong>${formatearMoneda(totalFinal)}</strong></div>
+ `;
+
+ document.getElementById("breakdown").innerHTML=html;
+ document.getElementById("placeholder").classList.add("hidden");
+ document.getElementById("resultados").classList.remove("hidden");
 }
 </script>
 </body>
-</html>
