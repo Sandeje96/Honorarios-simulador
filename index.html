@@ -100,7 +100,6 @@ border-bottom:1px solid #e8ecf4}
 
 <div class="content">
 
-<!-- FORMULARIO -->
 <div class="form-section">
 <h2 style="color:#2c5aa0;margin-bottom:25px">
 <i class="fas fa-edit"></i> Datos del Proyecto
@@ -137,7 +136,7 @@ border-bottom:1px solid #e8ecf4}
 <option value="croquis">Solo Croquis preliminares (5%)</option>
 <option value="anteproyecto">Croquis + Anteproyecto (20%)</option>
 <option value="planos_construccion">Croquis + Anteproyecto + Planos (40%)</option>
-<option value="proyecto_completo">Proyecto Completo + Estructuras (60%)</option>
+<option value="proyecto_completo">Proyecto y Dirección de Obra</option>
 </select>
 </div>
 
@@ -146,7 +145,6 @@ Calcular Honorarios
 </button>
 </div>
 
-<!-- RESULTADOS -->
 <div class="results-section">
 <h2 style="color:#2c5aa0;margin-bottom:25px">
 <i class="fas fa-chart-line"></i> Resultado del Cálculo
@@ -173,14 +171,11 @@ Complete los datos y presione “Calcular Honorarios”
 </div>
 </div>
 
-<!-- LOS SCRIPTS CONTINUAN EN LOS SIGUIENTES MENSAJES -->
-</body>
-</html>
 <script>
 /* ======================================================
    VALOR BASE OFICIAL DEL m² – MARZO 2025
 ====================================================== */
-const VALOR_BASE_M2 = 1231951.07;
+const VALOR_BASE_M2 = 1230500.00;
 
 /* ======================================================
    CATEGORÍAS Y TIPOLOGÍAS OFICIALES CPIM
@@ -318,10 +313,9 @@ tipologiaSelect.addEventListener("change",()=>{
  valorM2Input.dataset.valor = valor;
 });
 </script>
+
 <script>
-/* ======================================================
-   SISTEMA DE HONORARIOS – IGUAL AL ORIGINAL
-====================================================== */
+/* ===== SISTEMA DE HONORARIOS ===== */
 
 const LIMITES_HONORARIOS = {
  primer_limite: 100000000,
@@ -334,128 +328,82 @@ const LIMITES_HONORARIOS = {
 const HONORARIO_MINIMO = 387709;
 
 const ETAPAS_PROYECTO = {
- croquis: {
-  porcentaje: 0.05,
-  descripcion: "Solo Croquis preliminares",
-  detalle: "Croquis preliminares"
- },
- anteproyecto: {
-  porcentaje: 0.20,
-  descripcion: "Croquis + Anteproyecto",
-  detalle: "Croquis preliminares + Anteproyecto"
- },
- planos_construccion: {
-  porcentaje: 0.40,
-  descripcion: "Croquis + Anteproyecto + Planos generales",
-  detalle: "Croquis preliminares + Anteproyecto + Planos generales"
- },
- proyecto_completo: {
-  porcentaje: 0.60,
-  descripcion: "Proyecto Completo + Estructuras",
-  detalle: "Croquis preliminares + Anteproyecto + Planos + Estructuras"
- }
+ croquis:{porcentaje:0.05,descripcion:"Solo Croquis preliminares",detalle:"Croquis preliminares"},
+ anteproyecto:{porcentaje:0.20,descripcion:"Croquis + Anteproyecto",detalle:"Croquis + Anteproyecto"},
+ planos_construccion:{porcentaje:0.40,descripcion:"Croquis + Anteproyecto + Planos",detalle:"Croquis + Anteproyecto + Planos"},
+ proyecto_completo:{porcentaje:0.60,descripcion:"Proyecto Completo",detalle:"Proyecto completo"}
 };
 
 const DESGLOSE_HONORARIOS = {
- proyecto: {
-  total: 0.60,
-  calculo_estructura: 0.18,
-  instalacion_electrica: 0.07,
-  instalacion_sanitaria: 0.07,
-  instalacion_gas: 0.04,
-  resto_proyecto: 0.24
+ proyecto:{
+  total:0.60,
+  calculo_estructura:0.18,
+  instalacion_electrica:0.07,
+  instalacion_sanitaria:0.07,
+  instalacion_gas:0.04,
+  resto_proyecto:0.24
  },
- direccion: {
-  total: 0.40,
-  calculo_estructura: 0.18,
-  instalacion_electrica: 0.07,
-  instalacion_sanitaria: 0.07,
-  instalacion_gas: 0.04,
-  resto_direccion: 0.04
- }
+ direccion:{ total:0.40 }
 };
 
-function formatearMoneda(valor){
- return new Intl.NumberFormat("es-AR",{
-  style:"currency",
-  currency:"ARS",
-  minimumFractionDigits:0
- }).format(valor);
-}
-
-function calcularHonorariosPorValor(valorObra){
- let honorarios=0;
- let porcentajeUsado="";
-
- if(valorObra<=LIMITES_HONORARIOS.primer_limite){
-  honorarios=valorObra*LIMITES_HONORARIOS.primer_porcentaje;
-  porcentajeUsado="9%";
- }else if(valorObra<=LIMITES_HONORARIOS.segundo_limite){
-  honorarios=
-   LIMITES_HONORARIOS.primer_limite*0.09 +
-   (valorObra-LIMITES_HONORARIOS.primer_limite)*0.07;
-  porcentajeUsado="9% + 7%";
- }else{
-  honorarios=
-   LIMITES_HONORARIOS.primer_limite*0.09 +
-   (LIMITES_HONORARIOS.segundo_limite-LIMITES_HONORARIOS.primer_limite)*0.07 +
-   (valorObra-LIMITES_HONORARIOS.segundo_limite)*0.05;
-  porcentajeUsado="9% + 7% + 5%";
- }
-
- return {honorarios,porcentajeUsado};
+function formatearMoneda(v){
+ return new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",minimumFractionDigits:0}).format(v);
 }
 
 function calcularHonorarios(){
-
- const superficie=parseFloat(document.getElementById("superficie").value)||0;
+ const superficie=+document.getElementById("superficie").value||0;
  const etapaProyecto=document.getElementById("etapaProyecto").value;
- const valorM2=parseFloat(document.getElementById("valorM2Calculado").dataset.valor)||0;
-
- if(superficie<=0){
-  alert("La superficie debe ser mayor a 0");
-  return;
- }
- if(!valorM2){
-  alert("Debe seleccionar una categoría y tipología");
-  return;
- }
- if(!etapaProyecto){
-  alert("Debe seleccionar una etapa del proyecto");
-  return;
- }
+ const valorM2=+document.getElementById("valorM2Calculado").dataset.valor||0;
+ if(!superficie||!valorM2||!etapaProyecto){alert("Complete todos los datos");return;}
 
  const valorObra=superficie*valorM2;
 
- const resultado=calcularHonorariosPorValor(valorObra);
- const honorariosBase=Math.max(resultado.honorarios,HONORARIO_MINIMO);
+ let honorariosBase = 0;
 
- const etapa=ETAPAS_PROYECTO[etapaProyecto];
- const honorarioProyecto=honorariosBase*etapa.porcentaje;
- const honorariosDireccion=honorariosBase*DESGLOSE_HONORARIOS.direccion.total;
+ // 9% SIEMPRE sobre todo el valor de la obra
+ honorariosBase += valorObra * 0.09;
+
+ // Si supera los 100 millones, aplicar 7% SOLO al excedente
+ if (valorObra > 100000000) {
+  const excedente100 = valorObra - 100000000;
+  honorariosBase += excedente100 * 0.07;
+ }
+
+ // Si supera los 500 millones, aplicar 5% SOLO al excedente
+ if (valorObra > 500000000) {
+  const excedente500 = valorObra - 500000000;
+  honorariosBase += excedente500 * 0.05;
+ }
+
+ // Honorario mínimo
+ honorariosBase = Math.max(honorariosBase, HONORARIO_MINIMO);
+
+ const honorarioProyecto=honorariosBase*ETAPAS_PROYECTO[etapaProyecto].porcentaje;
+ const honorariosDireccion=honorariosBase*0.40;
 
  let totalFinal=honorarioProyecto;
- if(etapaProyecto==="proyecto_completo"){
-  totalFinal+=honorariosDireccion;
- }
+ if(etapaProyecto==="proyecto_completo") totalFinal+=honorariosDireccion;
 
  document.getElementById("honorarioTotal").textContent=formatearMoneda(totalFinal);
 
  let html=`
  <h3>Desglose Completo de Honorarios</h3>
- <div class="breakdown-item"><span>Valor de la Obra:</span><span>${formatearMoneda(valorObra)}</span></div>
- <div class="breakdown-item"><span>Superficie:</span><span>${superficie} m²</span></div>
- <div class="breakdown-item"><span>Valor m²:</span><span>${formatearMoneda(valorM2)}</span></div>
- <div class="breakdown-item"><span>Porcentaje aplicado:</span><span>${resultado.porcentajeUsado}</span></div>
+ <div class="breakdown-item"><span>Valor de la obra</span><span>${formatearMoneda(valorObra)}</span></div>
+ <div class="breakdown-item"><span>Superficie</span><span>${superficie} m²</span></div>
+ <div class="breakdown-item"><span>Valor m²</span><span>${formatearMoneda(valorM2)}</span></div>
  <hr>
- <div class="breakdown-item"><strong>${etapa.descripcion} (${etapa.porcentaje*100}%)</strong><strong>${formatearMoneda(honorarioProyecto)}</strong></div>
- <div class="breakdown-item"><em>${etapa.detalle}</em></div>
+ <div class="breakdown-item"><strong>Proyecto (60%)</strong><strong>${formatearMoneda(honorarioProyecto)}</strong></div>
  `;
 
  if(etapaProyecto==="proyecto_completo"){
   html+=`
+  <div class="breakdown-item" style="margin-left:20px"><span>Cálculo de estructuras (18%)</span><span>${formatearMoneda(honorariosBase*0.18)}</span></div>
+  <div class="breakdown-item" style="margin-left:20px"><span>Instalación eléctrica (7%)</span><span>${formatearMoneda(honorariosBase*0.07)}</span></div>
+  <div class="breakdown-item" style="margin-left:20px"><span>Instalación sanitaria (7%)</span><span>${formatearMoneda(honorariosBase*0.07)}</span></div>
+  <div class="breakdown-item" style="margin-left:20px"><span>Instalación de gas (4%)</span><span>${formatearMoneda(honorariosBase*0.04)}</span></div>
+  <div class="breakdown-item" style="margin-left:20px"><span>Proyecto de arquitectura (24%)</span><span>${formatearMoneda(honorariosBase*0.24)}</span></div>
   <hr>
-  <div class="breakdown-item"><strong>Dirección de Obra (40%)</strong><strong>${formatearMoneda(honorariosDireccion)}</strong></div>
+  <div class="breakdown-item"><strong>Dirección de obra (40%)</strong><strong>${formatearMoneda(honorariosDireccion)}</strong></div>
   `;
  }
 
@@ -469,4 +417,6 @@ function calcularHonorarios(){
  document.getElementById("resultados").classList.remove("hidden");
 }
 </script>
+
 </body>
+</html>
